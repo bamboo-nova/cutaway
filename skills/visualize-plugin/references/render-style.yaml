@@ -1,0 +1,104 @@
+# render-style.yaml -- ontology class/role -> color, shape, legend (single source of truth for rendering)
+# All chrome strings rendered into diagrams live under labels.<lang>; content strings come from the structure YAML.
+style: claude-plugin-render/v1.1
+palette:                       # [stroke, fill]
+  orchestrator: ["#6741d9", "#d0bfff"]
+  generator:    ["#1971c2", "#a5d8ff"]   # generic skill (analyzer/collector/importer etc. share this)
+  collector:    ["#1971c2", "#a5d8ff"]
+  analyzer:     ["#1971c2", "#a5d8ff"]
+  importer:     ["#1971c2", "#a5d8ff"]
+  maintenance:  ["#1971c2", "#a5d8ff"]
+  inventory:    ["#1971c2", "#a5d8ff"]
+  advisor:      ["#1971c2", "#a5d8ff"]
+  recorder:     ["#1971c2", "#a5d8ff"]
+  reporter:     ["#1971c2", "#a5d8ff"]
+  knowledge:    ["#748ffc", "#dbe4ff"]   # reference-knowledge skills in a lighter tone
+  gate:         ["#e8590c", "#ffd8a8"]
+  agent:        ["#0c8599", "#99e9f2"]
+  mcp:          ["#2f9e44", "#b2f2bb"]
+  script:       ["#9c36b5", "#eebefa"]
+  hook:         ["#c92a2a", "#ffc9c9"]
+  command:      ["#1971c2", "#a5d8ff"]
+  data:         ["#495057", "#f1f3f5"]
+  user:         ["#495057", "#e9ecef"]
+shapes:
+  gate: diamond            # audits / pass-fail decisions
+  default: rectangle
+line_semantics:
+  solid:  primary data/control flow
+  dashed: reference, optional path, data-node border
+  red_dashed_zone: isolation boundary (no cross-contamination)
+
+labels:
+  ja:
+    legend:
+      - [orchestrator, "オーケストレータ"]
+      - [generator, "スキル"]
+      - [knowledge, "参照知識スキル"]
+      - [gate, "ゲート/監査"]
+      - [agent, "エージェント"]
+      - [mcp, "MCPサーバー"]
+      - [script, "スクリプト"]
+      - [data, "データ/成果物"]
+    legend_prefix: "凡例:"
+    legend_suffix: "破線=参照・データ ／ 赤破線枠=隔離境界 ／「不可視」=この環境でソース未マウントのため確認不可（0ではない）"
+    visibility:
+      verified:       { title: "（{n}）", note: "" }
+      verified_empty: { title: "（走査済み・なし）", note: "ディレクトリ/設定を走査した上で存在しない" }
+      not_visible:    { title: "（不可視）", note: "この環境ではソース未マウントのため確認不可（0と断定しない）" }
+    spec_status:
+      out-of-spec: "（標準スコープ外）"
+    dialect:
+      claude-code: "Claude Code プラグイン形式"
+      agent-plugins-1.0: "Agent Plugins 1.0 準拠（標準スコープ = plugin.json / skills / mcp.json。その他はクライアント拡張）"
+      unknown: "マニフェスト未検出（dirscanのみ）"
+    ui:
+      inventory_header: "■ コンポーネント棚卸し（MECE）"
+      flow_header: "■ 実行フロー（Skills レイヤー）"
+      flow_undefined: "■ 実行フロー: 未定義（draft — flow を設計してから再変換する）"
+      trace_header: "■ 呼び出し例（代表トレース）"
+      overview_prefix: "概要: "
+      dialect_prefix: "形式: "
+      unclassified: "未分類"
+      tools_suffix: " tools"
+      tools_unknown: "tools実数不明"
+      external_tag: "〔外部〕"
+      agents_more: "…他{n}体"
+      group_count: "（{n}体）"
+      none: "なし"
+  en:
+    legend:
+      - [orchestrator, "orchestrator"]
+      - [generator, "skill"]
+      - [knowledge, "reference-knowledge skill"]
+      - [gate, "gate / audit"]
+      - [agent, "agent"]
+      - [mcp, "MCP server"]
+      - [script, "script"]
+      - [data, "data / artifact"]
+    legend_prefix: "Legend:"
+    legend_suffix: "dashed = reference/data | red dashed frame = isolation boundary | \"not visible\" = source not mounted in this environment, cannot verify (NOT zero)"
+    visibility:
+      verified:       { title: " ({n})", note: "" }
+      verified_empty: { title: " (scanned: none)", note: "directory/config scanned; nothing exists" }
+      not_visible:    { title: " (not visible)", note: "source not mounted in this environment; do not assert zero" }
+    spec_status:
+      out-of-spec: " (out of spec)"
+    dialect:
+      claude-code: "Claude Code plugin format"
+      agent-plugins-1.0: "Agent Plugins 1.0 (standard scope = plugin.json / skills / mcp.json; everything else is a client extension)"
+      unknown: "no manifest detected (dirscan only)"
+    ui:
+      inventory_header: "# Component inventory (MECE)"
+      flow_header: "# Execution flow (skills layer)"
+      flow_undefined: "# Execution flow: undefined (draft — design the flow, then re-convert)"
+      trace_header: "# Example invocation (representative trace)"
+      overview_prefix: "Overview: "
+      dialect_prefix: "Format: "
+      unclassified: "unclassified"
+      tools_suffix: " tools"
+      tools_unknown: "tool count unknown"
+      external_tag: " [external]"
+      agents_more: "…{n} more"
+      group_count: " ({n})"
+      none: "none"

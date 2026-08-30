@@ -1,0 +1,144 @@
+schema: plugin-structure/v1.1
+ontology: claude-plugin/v1
+dialect: claude-code
+lang: en
+title: "hookify plugin structure map"
+generated:
+  by: extract.py/1.1
+  at: "2026-08-30T07:01:14+00:00"
+  environment: claude-code-dirscan
+  source_root: "/private/tmp/claude-504/-Users-yukihiro-su-Desktop-Otameshi-workspace-practices/c414ead4-c2fc-46fc-9125-684fe52594a6/scratchpad/claude-plugins-official/plugins/hookify"
+plugin:
+  name: hookify  # provenance: manifest
+  version: null
+  overview: "Finds behaviors worth preventing in the conversation log and turns them into Claude Code hooks as .local.md rule files (by Anthropic)."
+note: null
+components:
+  skills:
+    visibility: verified
+    provenance: dirscan
+    items:
+      - id: writing-rules
+        role: knowledge
+        description: "Reference skill explaining the hookify rule file format (Markdown with YAML frontmatter), event types and pattern syntax; the /hookify command loads it first."
+        pipeline_order: null
+        uses:
+          mcp: {}
+          agents: []
+          scripts: []
+        provenance: dirscan
+  agents:
+    visibility: verified
+    provenance: dirscan
+    items:
+      - id: conversation-analyzer
+        description: "Analysis agent that scans the conversation for explicit prohibitions, reverted fixes, frustration signals and repeated issues, returning structured findings."
+        model: inherit
+        used_by: []
+        note: "Launched not by a skill but by commands/hookify.md (via Task when /hookify runs without arguments)"
+        provenance: dirscan
+  hooks:
+    visibility: verified
+    provenance: dirscan
+    items:
+      - event: PreToolUse
+        type: command
+        command: "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/pretooluse.py\""
+        provenance: dirscan
+      - event: PostToolUse
+        type: command
+        command: "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/posttooluse.py\""
+        provenance: dirscan
+      - event: Stop
+        type: command
+        command: "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/stop.py\""
+        provenance: dirscan
+      - event: UserPromptSubmit
+        type: command
+        command: "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/userpromptsubmit.py\""
+        provenance: dirscan
+  commands:
+    visibility: verified
+    provenance: dirscan
+    items:
+      - id: hookify
+        description: "Creates prevention rules from conversation analysis or explicit instructions (launches conversation-analyzer when run without arguments)"
+        provenance: dirscan
+      - id: configure
+        description: "Interactively enables or disables hookify rules"
+        provenance: dirscan
+      - id: list
+        description: "Lists all configured rules"
+        provenance: dirscan
+      - id: help
+        description: "Usage help for the plugin"
+        provenance: dirscan
+  mcp_servers:
+    visibility: verified_empty
+    provenance: manifest
+    items: []
+  lsp_servers:
+    visibility: verified_empty
+    provenance: dirscan
+    items: []
+  monitors:
+    visibility: verified_empty
+    provenance: manifest
+    items: []
+  scripts:
+    visibility: verified
+    provenance: dirscan
+    note: "The hook bodies hooks/*.py (4 files) are listed in the Hooks panel"
+    items:
+      - file: core/rule_engine.py
+        note: "Rule evaluation engine (matches patterns per event and decides warn / block)"
+        provenance: dirscan
+      - file: core/config_loader.py
+        note: "Config loader (reads .claude/hookify.*.local.md rule files)"
+        provenance: dirscan
+  data_references:
+    visibility: verified
+    provenance: dirscan
+    items:
+      - file: examples/dangerous-rm.local.md
+        kind: "example"
+        note: "Example rule blocking dangerous rm"
+        provenance: dirscan
+      - file: examples/console-log-warning.local.md
+        kind: "example"
+        provenance: dirscan
+      - file: examples/sensitive-files-warning.local.md
+        kind: "example"
+        provenance: dirscan
+      - file: examples/require-tests-stop.local.md
+        kind: "example"
+        provenance: dirscan
+flow:
+  lanes:
+    - { id: main, label: "rule creation (started by the /hookify command)" }
+    - { id: hook, label: "runtime checks (hooks on 4 events)" }
+  placement:
+    - { ref: conversation, lane: main, col: 0, kind: data, desc: "conversation log (scanned for frustration signals and corrections)" }
+    - { ref: writing-rules, lane: main, col: 1 }
+    - { ref: rule-file, lane: main, col: 2, kind: artifact, desc: ".claude/hookify.<name>.local.md (generated rule)" }
+    - { ref: tool-event, lane: hook, col: 0, kind: data, desc: "PreToolUse / PostToolUse / Stop / UserPromptSubmit" }
+    - { ref: rule-engine, lane: hook, col: 1, kind: script, desc: "hooks/*.py -> core/rule_engine.py evaluate every rule" }
+    - { ref: warn-or-block, lane: hook, col: 2, kind: artifact, desc: "warning shown or operation blocked (action: warn / block)" }
+  edges:
+    - { from: conversation, to: writing-rules }
+    - { from: writing-rules, to: rule-file }
+    - { from: tool-event, to: rule-engine }
+    - { from: rule-engine, to: warn-or-block }
+    - { from: rule-file, to: rule-engine, type: ref, label: "loaded as configuration" }
+  zones:
+    - { cols: [0, 0], label: "analysis" }
+    - { cols: [1, 1], label: "rule writing" }
+    - { cols: [2, 2], label: "artifacts" }
+example_trace:
+  - { actor: user, kind: user, text: "runs /hookify with no arguments" }
+  - { actor: "hookify (command)", kind: skill, text: "loads the writing-rules skill first to learn the rule format" }
+  - { actor: conversation-analyzer, kind: agent, text: "extracts behaviors to prevent from the last 20-30 messages (tool, pattern, severity)" }
+  - { actor: "hookify (command)", kind: skill, text: "confirms target rules and warn / block via AskUserQuestion" }
+  - { actor: "hookify (command)", kind: skill, text: "writes .claude/hookify.<rule-name>.local.md" }
+  - { actor: rule_engine.py, kind: script, text: "evaluates the rules on subsequent PreToolUse and other events" }
+  - { actor: rule_engine.py, kind: gate, text: "injects a warning on match; action: block rejects the operation" }

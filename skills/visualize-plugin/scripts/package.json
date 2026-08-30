@@ -1,0 +1,10 @@
+{
+  "name": "cutaway-scripts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Deterministic layer of cutaway (structure YAML -> ELK -> Excalidraw conversion and validation)",
+  "dependencies": {
+    "elkjs": "^0.9.3",
+    "js-yaml": "^4.1.0"
+  }
+}

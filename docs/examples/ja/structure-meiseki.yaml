@@ -1,0 +1,127 @@
+schema: plugin-structure/v1.1
+ontology: claude-plugin/v1
+dialect: claude-code
+lang: ja
+title: "meiseki プラグイン構成図"
+generated:
+  by: extract.py/1.1
+  at: "2026-08-30T06:47:16+00:00"
+  environment: claude-code-dirscan
+  source_root: "/Users/yukihiro-su/Desktop/Otameshi/workspace/practices/meiseki"
+plugin:
+  name: meiseki  # provenance: manifest
+  version: 0.5.0
+  overview: "AI が書いた日本語文書から、二重否定や LLM 定型句など読解負荷の高い構文を削ぎ落とし、一読で意味が取れる本文へ書き直すプラグイン。"
+note: null
+components:
+  skills:
+    visibility: verified
+    provenance: dirscan
+    items:
+      - id: meiseki
+        role: generator
+        description: "説明的な日本語本文を textlint（決定論層）と patterns.md の A→H パターン（LLM 層）の二段構えでリライトし、声や個性を足さず明晰さだけを目的に整えるスキル。"
+        pipeline_order: null
+        note: "textlint は npx 経由で実行（同梱の textlint.config.json と prh 辞書を使用）。二重否定を畳むときの真偽反転チェックが最重要ガード。"
+        uses:
+          mcp: {}
+          agents: []
+          scripts: []
+        provenance: dirscan
+  agents:
+    visibility: verified_empty
+    provenance: dirscan
+    items: []
+  hooks:
+    visibility: verified
+    provenance: dirscan
+    items:
+      - event: PostToolUse
+        matcher: "Write|Edit"
+        type: command
+        command: "\"${CLAUDE_PLUGIN_ROOT}\"/scripts/meiseki-check.sh"
+        provenance: dirscan
+  commands:
+    visibility: verified_empty
+    provenance: dirscan
+    items: []
+  mcp_servers:
+    visibility: verified_empty
+    provenance: manifest
+    items: []
+  lsp_servers:
+    visibility: verified_empty
+    provenance: dirscan
+    items: []
+  monitors:
+    visibility: verified_empty
+    provenance: manifest
+    items: []
+  scripts:
+    visibility: verified
+    provenance: dirscan
+    items:
+      - file: scripts/codex-hook.sh
+        note: "Codex フックアダプタ（apply_patch エンベロープからパスを抽出しコアへ橋渡し）"
+        provenance: dirscan
+      - file: scripts/meiseki-check.sh
+        note: "Claude Code フックアダプタ（block 判定・再実行ガード・文書系 md 以外の除外）"
+        provenance: dirscan
+      - file: scripts/meiseki-lint-core.sh
+        note: "ホスト非依存コア（対象判定→マスキング→textlint→閾値判定）"
+        provenance: dirscan
+      - file: scripts/test-meiseki-check.sh
+        note: "prh 補完辞書とフック挙動のテスト（npm run test:hook）"
+        provenance: dirscan
+  data_references:
+    visibility: verified
+    provenance: dirscan
+    items:
+      - file: ".agents/skills/meiseki/references/patterns.md"
+        kind: "お作法"
+        note: "A→H の優先度付きリライトパターン集"
+        provenance: dirscan
+      - file: ".agents/skills/meiseki/references/prh-llm-phrases.yml"
+        kind: "台帳"
+        note: "LLM 定型句と分離型二重否定の補完辞書"
+        provenance: dirscan
+      - file: ".agents/skills/meiseki/references/textlint.config.json"
+        kind: "設定"
+        provenance: dirscan
+      - file: "hooks/codex-hooks.json"
+        kind: "設定"
+        note: "Codex CLI 用フック定義"
+        provenance: dirscan
+      - file: ".codex-plugin/plugin.json"
+        kind: "設定"
+        note: "Codex CLI 対応マニフェスト"
+        provenance: dirscan
+flow:
+  lanes:
+    - { id: main, label: "スキル起動（手動の明晰化）" }
+    - { id: hook, label: "フック自動検査（PostToolUse）" }
+  placement:
+    - { ref: draft-md, lane: main, col: 0, kind: data, desc: "対象の日本語 Markdown" }
+    - { ref: meiseki, lane: main, col: 1 }
+    - { ref: clear-md, lane: main, col: 2, kind: artifact, desc: "明晰化済み本文（after < before を検算済み）" }
+    - { ref: edit-event, lane: hook, col: 0, kind: data, desc: "Write / Edit された md" }
+    - { ref: meiseki-check.sh, lane: hook, col: 1, kind: script, desc: "meiseki-lint-core.sh で textlint 検査" }
+    - { ref: block-notice, lane: hook, col: 2, kind: artifact, desc: "decision:block（同一内容 2 回で advisory 降格）" }
+  edges:
+    - { from: draft-md, to: meiseki }
+    - { from: meiseki, to: clear-md }
+    - { from: edit-event, to: meiseki-check.sh }
+    - { from: meiseki-check.sh, to: block-notice }
+    - { from: block-notice, to: meiseki, type: ref, label: "スキル適用を要求" }
+  zones:
+    - { cols: [0, 0], label: "入力" }
+    - { cols: [1, 1], label: "明晰化（A→H リライト）" }
+    - { cols: [2, 2], label: "出力" }
+example_trace:
+  - { actor: user, kind: user, text: "「この README をわかりやすく直して」-> meiseki 発動" }
+  - { actor: meiseki, kind: skill, text: "全文を読み、否定・条件・係り受けの論理構造を確定させる（Step 1）" }
+  - { actor: "textlint (npx)", kind: script, text: "JSON 出力から ruleId と行番号を取得し高負荷箇所を特定（Step 2）" }
+  - { actor: meiseki, kind: skill, text: "patterns.md の A→H 順にリライト。二重否定の畳み込みが最優先（Step 4）" }
+  - { actor: meiseki, kind: skill, text: "意味の検算: 真偽の反転・条件・数値の一致を原文と突き合わせる（Step 5）" }
+  - { actor: "textlint (npx)", kind: script, text: "再実行で after < before を検算。二重否定は原則 0 件（Step 6）" }
+  - { actor: meiseki, kind: skill, text: "やりすぎチェックを通し、リライト後の本文だけを返す（Step 7-8）" }

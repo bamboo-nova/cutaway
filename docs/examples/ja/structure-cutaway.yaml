@@ -1,0 +1,121 @@
+schema: plugin-structure/v1.1
+ontology: claude-plugin/v1
+dialect: claude-code
+lang: ja
+title: "cutaway プラグイン構成図"
+generated:
+  by: extract.py/1.1
+  at: "2026-08-30T06:47:16+00:00"
+  environment: claude-code-dirscan
+  source_root: "/Users/yukihiro-su/Desktop/Otameshi/workspace/practices/cutaway"
+plugin:
+  name: cutaway  # provenance: manifest
+  version: 0.1.0
+  overview: "Claude Code / Agent Plugins 1.0 プラグインの構造を棚卸しし、レビュー可能な structure YAML（正本）と ELK 自動レイアウトの Excalidraw 構成図を決定的に生成するプラグイン（日英対応）。"
+note: null
+components:
+  skills:
+    visibility: verified
+    provenance: dirscan
+    items:
+      - id: visualize-plugin
+        role: generator
+        description: "プラグインの全ソースを棚卸しし、9 パネルの MECE 棚卸し・実行フロー・代表トレースの 3 段構成図を、抽出→正本 YAML→描画の 3 層で決定的に生成するスキル。"
+        pipeline_order: null
+        argument_hint: "<plugin-path> [--out <dir>] [--lang en|ja]"
+        note: "同じ YAML からはバイト同一の図が出る。構造の変更は YAML の差分としてレビューする。"
+        uses:
+          mcp: {}
+          agents: []
+          scripts: [scripts/extract.py, scripts/validate.js, scripts/convert.js]
+        provenance: dirscan
+  agents:
+    visibility: verified_empty
+    provenance: dirscan
+    items: []
+  hooks:
+    visibility: verified_empty
+    provenance: dirscan
+    items: []
+  commands:
+    visibility: verified_empty
+    provenance: dirscan
+    items: []
+  mcp_servers:
+    visibility: verified_empty
+    provenance: manifest
+    items: []
+  lsp_servers:
+    visibility: verified_empty
+    provenance: dirscan
+    items: []
+  monitors:
+    visibility: verified_empty
+    provenance: manifest
+    items: []
+  scripts:
+    visibility: verified
+    provenance: dirscan
+    items:
+      - file: skills/visualize-plugin/scripts/extract.py
+        note: "Layer 1: 方言自動判定＋dirscan で structure YAML ドラフトを生成（TODO 付き）"
+        provenance: dirscan
+      - file: skills/visualize-plugin/scripts/validate.js
+        note: "YAML（TODO 残存・語彙・参照解決）と図（バインド座標・はみ出し）の検査"
+        provenance: dirscan
+      - file: skills/visualize-plugin/scripts/convert.js
+        note: "Layer 3: 正本 YAML を ELK 自動レイアウトで .excalidraw に決定的変換"
+        provenance: dirscan
+  data_references:
+    visibility: verified
+    provenance: dirscan
+    items:
+      - file: skills/visualize-plugin/references/agent-plugins-dialect.md
+        kind: "お作法"
+        note: "Agent Plugins 1.0 方言の判定と描き分け"
+        provenance: dirscan
+      - file: skills/visualize-plugin/references/extraction-checklist.md
+        kind: "お作法"
+        note: "Layer 2（品質ゲート）のドラフト完成チェックリスト"
+        provenance: dirscan
+      - file: skills/visualize-plugin/references/plugin-ontology.yaml
+        kind: "台帳"
+        note: "クラス・関係・役割・出所・可視性の共有語彙"
+        provenance: dirscan
+      - file: skills/visualize-plugin/references/render-style.yaml
+        kind: "台帳"
+        note: "配色と図の定型文字列（日英）"
+        provenance: dirscan
+      - file: skills/visualize-plugin/references/structure-schema.md
+        kind: "スキーマ"
+        note: "plugin-structure/v1.1 の正本スキーマ"
+        provenance: dirscan
+      - file: ".codex-plugin/plugin.json"
+        kind: "設定"
+        note: "Codex CLI 対応マニフェスト"
+        provenance: dirscan
+flow:
+  lanes:
+    - { id: main, label: "3 層パイプライン" }
+  placement:
+    - { ref: plugin-src, lane: main, col: 0, kind: data, desc: "対象プラグインのソース一式" }
+    - { ref: visualize-plugin, lane: main, col: 1 }
+    - { ref: structure-yaml, lane: main, col: 2, kind: artifact, desc: "structure YAML（人がレビューする正本）" }
+    - { ref: excalidraw-fig, lane: main, col: 3, kind: artifact, desc: ".excalidraw（再変換でバイト同一）" }
+  edges:
+    - { from: plugin-src, to: visualize-plugin }
+    - { from: visualize-plugin, to: structure-yaml }
+    - { from: structure-yaml, to: excalidraw-fig, label: "convert.js（ELK）" }
+    - { from: excalidraw-fig, to: structure-yaml, type: ref, label: "修正は YAML に戻す" }
+  zones:
+    - { cols: [0, 0], label: "入力" }
+    - { cols: [1, 1], label: "抽出とドラフト完成（品質ゲート）" }
+    - { cols: [2, 3], label: "正本と図" }
+example_trace:
+  - { actor: user, kind: user, text: "「meiseki プラグインを可視化して」-> visualize-plugin 発動" }
+  - { actor: extract.py, kind: script, text: "方言を自動判定し dirscan で棚卸し。TODO 付きドラフトを出力（Layer 1）" }
+  - { actor: visualize-plugin, kind: skill, text: "role 付与・flow 設計・trace 記述で TODO を解消し、役割一覧をユーザーに確認（Layer 2）" }
+  - { actor: validate.js, kind: script, text: "--yaml で TODO 残存・語彙・参照解決を検査" }
+  - { actor: convert.js, kind: script, text: "ELK 自動レイアウトで .excalidraw を生成（Layer 3）" }
+  - { actor: validate.js, kind: script, text: "バインド座標・はみ出しを検査。再変換のバイト同一で決定性を確認" }
+  - { actor: user, kind: user, text: "excalidraw.com で目視確認。直したい点は YAML に反映して再変換" }

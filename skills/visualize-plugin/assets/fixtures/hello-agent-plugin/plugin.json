@@ -1,0 +1,11 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "hello-agent-plugin",
+  "version": "1.0.0",
+  "description": "Minimal fixture for verifying the Agent Plugins 1.0 dialect (a greeting skill plus a dummy MCP server)",
+  "license": "MIT",
+  "keywords": ["fixture", "greeting"],
+  "extensions": {
+    "com.example.client": { "activation": "keyword" }
+  }
+}

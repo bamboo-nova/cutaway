@@ -1,0 +1,19 @@
+{
+  "name": "cutaway",
+  "version": "0.1.0",
+  "description": "Inventories Claude Code / Agent Plugins 1.0 plugin structure and deterministically generates a reviewable structure YAML (canonical record) plus an ELK-laid-out Excalidraw structure map. Bilingual (en/ja) output.",
+  "author": {
+    "name": "bamboo-nova"
+  },
+  "skills": [
+    "./skills"
+  ],
+  "keywords": [
+    "visualization",
+    "excalidraw",
+    "plugin-structure",
+    "elk",
+    "documentation",
+    "agent-plugins"
+  ]
+}

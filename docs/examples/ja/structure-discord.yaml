@@ -1,0 +1,121 @@
+schema: plugin-structure/v1.1
+ontology: claude-plugin/v1
+dialect: claude-code
+lang: ja
+title: "discord プラグイン構成図"
+generated:
+  by: extract.py/1.1
+  at: "2026-08-30T07:01:14+00:00"
+  environment: claude-code-dirscan
+  source_root: "/private/tmp/claude-504/-Users-yukihiro-su-Desktop-Otameshi-workspace-practices/c414ead4-c2fc-46fc-9125-684fe52594a6/scratchpad/claude-plugins-official/external_plugins/discord"
+plugin:
+  name: discord  # provenance: manifest
+  version: 0.0.4
+  overview: "Claude Code を Discord と橋渡しする MCP チャネルプラグイン。ペアリングと許可リストによるアクセス制御を内蔵する。"
+note: null
+components:
+  skills:
+    visibility: verified
+    provenance: dirscan
+    items:
+      - id: configure
+        role: importer
+        description: "Discord ボットトークンを ~/.claude/channels/discord/.env に保存し、アクセスポリシーの現状を案内するセットアップスキル。"
+        pipeline_order: 1
+        note: "Discord へは接続せず状態ファイルを書くだけ（MCP ツールは呼ばない）"
+        uses:
+          mcp: {}
+          agents: []
+          scripts: []
+        provenance: dirscan
+      - id: access
+        role: maintenance
+        description: "ペアリング承認・許可リスト編集・DM/グループポリシー変更を行うアクセス管理スキル。チャネル経由の依頼は注入対策として拒否する。"
+        pipeline_order: 2
+        note: "access.json を編集するだけで Discord とは通信しない。サーバーが受信毎に再読込"
+        uses:
+          mcp: {}
+          agents: []
+          scripts: []
+        provenance: dirscan
+  agents:
+    visibility: verified_empty
+    provenance: dirscan
+    items: []
+  hooks:
+    visibility: verified_empty
+    provenance: dirscan
+    items: []
+  commands:
+    visibility: verified_empty
+    provenance: dirscan
+    items: []
+  mcp_servers:
+    visibility: verified
+    provenance: manifest
+    items:
+      - name: discord
+        tools: 5
+        tool_names: [reply, react, edit_message, download_attachment, fetch_messages]
+        transport: stdio
+        note: "bun run server.ts（権限リクエストを Allow/Deny ボタン付き DM に整形する通知ハンドラも持つ）"
+        external: false
+        provenance: dirscan
+  lsp_servers:
+    visibility: verified_empty
+    provenance: dirscan
+    items: []
+  monitors:
+    visibility: verified_empty
+    provenance: manifest
+    items: []
+  scripts:
+    visibility: verified
+    provenance: dirscan
+    items:
+      - file: server.ts
+        note: "MCP サーバー本体（900 行）。受信 DM のアクセス判定・転送と 5 ツールの公開"
+        provenance: dirscan
+  data_references:
+    visibility: verified
+    provenance: dirscan
+    items:
+      - file: ACCESS.md
+        kind: "お作法"
+        note: "アクセス制御と配送ポリシーの解説（pairing が既定）"
+        provenance: dirscan
+      - file: package.json
+        kind: "設定"
+        note: "bun 依存定義（discord.js / MCP SDK）"
+        provenance: dirscan
+flow:
+  lanes:
+    - { id: main, label: "メッセージ流路" }
+    - { id: setup, label: "設定とアクセス管理（ユーザー端末側）" }
+  placement:
+    - { ref: dm-in, lane: main, col: 0, kind: data, desc: "Discord DM（未承認者には 6 桁コードを返して破棄）" }
+    - { ref: server-ts, lane: main, col: 1, kind: script, desc: "server.ts: アクセス判定して Claude Code へ転送" }
+    - { ref: cc-session, lane: main, col: 2, kind: data, desc: "Claude Code セッション" }
+    - { ref: dm-reply, lane: main, col: 3, kind: artifact, desc: "reply / react / edit_message による応答" }
+    - { ref: configure, lane: setup, col: 0 }
+    - { ref: access, lane: setup, col: 1 }
+    - { ref: state-files, lane: setup, col: 2, kind: artifact, desc: "~/.claude/channels/discord/ の .env と access.json" }
+  edges:
+    - { from: dm-in, to: server-ts }
+    - { from: server-ts, to: cc-session }
+    - { from: cc-session, to: dm-reply }
+    - { from: configure, to: state-files }
+    - { from: access, to: state-files }
+    - { from: state-files, to: server-ts, type: ref, label: "起動時・受信毎に再読込" }
+  zones:
+    - { cols: [0, 1], label: "受信と判定" }
+    - { cols: [2, 2], label: "対話" }
+    - { cols: [3, 3], label: "応答" }
+example_trace:
+  - { actor: user, kind: user, text: "ボットトークンを貼り付け -> configure が .env に保存" }
+  - { actor: configure, kind: skill, text: "既定ポリシー pairing と到達範囲（Public Bot 設定）を案内" }
+  - { actor: discord, kind: mcp, text: "未知の送信者の DM に 6 桁コードを返信し、本文は破棄" }
+  - { actor: user, kind: user, text: "/discord:access pair <code> で送信者を承認" }
+  - { actor: access, kind: skill, text: "access.json の allowFrom に追加。サーバーは受信毎に再読込" }
+  - { actor: discord, kind: mcp, text: "以後の DM を Claude Code セッションへ転送" }
+  - { actor: discord, kind: mcp, text: "応答は reply ツールで返信。権限確認は Allow/Deny ボタン付き DM" }

@@ -1,0 +1,121 @@
+schema: plugin-structure/v1.1
+ontology: claude-plugin/v1
+dialect: claude-code
+lang: en
+title: "cutaway plugin structure map"
+generated:
+  by: extract.py/1.1
+  at: "2026-08-30T06:47:16+00:00"
+  environment: claude-code-dirscan
+  source_root: "/Users/yukihiro-su/Desktop/Otameshi/workspace/practices/cutaway"
+plugin:
+  name: cutaway  # provenance: manifest
+  version: 0.1.0
+  overview: "Inventories the structure of Claude Code / Agent Plugins 1.0 plugins and deterministically generates a reviewable structure YAML (the canonical record) plus an ELK-laid-out Excalidraw structure map (en/ja)."
+note: null
+components:
+  skills:
+    visibility: verified
+    provenance: dirscan
+    items:
+      - id: visualize-plugin
+        role: generator
+        description: "Inventories a plugin's full source and deterministically renders a 3-band map (9-panel MECE inventory, execution flow, representative trace) through the extract -> canonical YAML -> render layers."
+        pipeline_order: null
+        argument_hint: "<plugin-path> [--out <dir>] [--lang en|ja]"
+        note: "The same YAML always yields a byte-identical figure; structural changes review as YAML diffs."
+        uses:
+          mcp: {}
+          agents: []
+          scripts: [scripts/extract.py, scripts/validate.js, scripts/convert.js]
+        provenance: dirscan
+  agents:
+    visibility: verified_empty
+    provenance: dirscan
+    items: []
+  hooks:
+    visibility: verified_empty
+    provenance: dirscan
+    items: []
+  commands:
+    visibility: verified_empty
+    provenance: dirscan
+    items: []
+  mcp_servers:
+    visibility: verified_empty
+    provenance: manifest
+    items: []
+  lsp_servers:
+    visibility: verified_empty
+    provenance: dirscan
+    items: []
+  monitors:
+    visibility: verified_empty
+    provenance: manifest
+    items: []
+  scripts:
+    visibility: verified
+    provenance: dirscan
+    items:
+      - file: skills/visualize-plugin/scripts/extract.py
+        note: "Layer 1: dialect auto-detection + dirscan produce the structure YAML draft (with TODOs)"
+        provenance: dirscan
+      - file: skills/visualize-plugin/scripts/validate.js
+        note: "Checks the YAML (leftover TODOs, vocabulary, reference resolution) and the figure (bound-text coords, overflow)"
+        provenance: dirscan
+      - file: skills/visualize-plugin/scripts/convert.js
+        note: "Layer 3: deterministically converts the canonical YAML to .excalidraw via ELK auto-layout"
+        provenance: dirscan
+  data_references:
+    visibility: verified
+    provenance: dirscan
+    items:
+      - file: skills/visualize-plugin/references/agent-plugins-dialect.md
+        kind: "reference"
+        note: "Detecting and rendering the Agent Plugins 1.0 dialect"
+        provenance: dirscan
+      - file: skills/visualize-plugin/references/extraction-checklist.md
+        kind: "reference"
+        note: "Draft completion checklist for Layer 2 (the quality gate)"
+        provenance: dirscan
+      - file: skills/visualize-plugin/references/plugin-ontology.yaml
+        kind: "ledger"
+        note: "Shared vocabulary: classes, relations, roles, provenance, visibility"
+        provenance: dirscan
+      - file: skills/visualize-plugin/references/render-style.yaml
+        kind: "ledger"
+        note: "Palette and chrome strings for the figure (en/ja)"
+        provenance: dirscan
+      - file: skills/visualize-plugin/references/structure-schema.md
+        kind: "schema"
+        note: "Canonical schema for plugin-structure/v1.1"
+        provenance: dirscan
+      - file: ".codex-plugin/plugin.json"
+        kind: "config"
+        note: "Codex CLI manifest"
+        provenance: dirscan
+flow:
+  lanes:
+    - { id: main, label: "3-layer pipeline" }
+  placement:
+    - { ref: plugin-src, lane: main, col: 0, kind: data, desc: "full source of the target plugin" }
+    - { ref: visualize-plugin, lane: main, col: 1 }
+    - { ref: structure-yaml, lane: main, col: 2, kind: artifact, desc: "structure YAML (the human-reviewed canonical record)" }
+    - { ref: excalidraw-fig, lane: main, col: 3, kind: artifact, desc: ".excalidraw (byte-identical on re-conversion)" }
+  edges:
+    - { from: plugin-src, to: visualize-plugin }
+    - { from: visualize-plugin, to: structure-yaml }
+    - { from: structure-yaml, to: excalidraw-fig, label: "convert.js (ELK)" }
+    - { from: excalidraw-fig, to: structure-yaml, type: ref, label: "fixes go back into the YAML" }
+  zones:
+    - { cols: [0, 0], label: "input" }
+    - { cols: [1, 1], label: "extraction and draft completion (quality gate)" }
+    - { cols: [2, 3], label: "record and figure" }
+example_trace:
+  - { actor: user, kind: user, text: "\"visualize the meiseki plugin\" -> visualize-plugin triggers" }
+  - { actor: extract.py, kind: script, text: "auto-detects the dialect, dirscans the inventory and emits a TODO-marked draft (Layer 1)" }
+  - { actor: visualize-plugin, kind: skill, text: "resolves TODOs (roles, flow, trace) and confirms the role list with the user (Layer 2)" }
+  - { actor: validate.js, kind: script, text: "--yaml checks leftover TODOs, vocabulary and reference resolution" }
+  - { actor: convert.js, kind: script, text: "generates the .excalidraw with ELK auto-layout (Layer 3)" }
+  - { actor: validate.js, kind: script, text: "checks bound-text coords and overflow; re-conversion confirms byte-identical determinism" }
+  - { actor: user, kind: user, text: "opens it at excalidraw.com; fixes go into the YAML and re-convert" }

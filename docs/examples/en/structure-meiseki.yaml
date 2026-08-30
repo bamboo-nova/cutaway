@@ -1,0 +1,127 @@
+schema: plugin-structure/v1.1
+ontology: claude-plugin/v1
+dialect: claude-code
+lang: en
+title: "meiseki plugin structure map"
+generated:
+  by: extract.py/1.1
+  at: "2026-08-30T06:47:16+00:00"
+  environment: claude-code-dirscan
+  source_root: "/Users/yukihiro-su/Desktop/Otameshi/workspace/practices/meiseki"
+plugin:
+  name: meiseki  # provenance: manifest
+  version: 0.5.0
+  overview: "Strips high-reading-load constructs such as double negatives and LLM cliches from AI-written Japanese documents and rewrites them into prose that parses in one read."
+note: null
+components:
+  skills:
+    visibility: verified
+    provenance: dirscan
+    items:
+      - id: meiseki
+        role: generator
+        description: "Rewrites explanatory Japanese prose in two passes -- textlint (deterministic layer) and the A-to-H patterns of patterns.md (LLM layer) -- aiming at clarity only, never adding voice or personality."
+        pipeline_order: null
+        note: "textlint runs via npx using the bundled textlint.config.json and prh dictionary. The key guard is the truth-value check when collapsing double negatives."
+        uses:
+          mcp: {}
+          agents: []
+          scripts: []
+        provenance: dirscan
+  agents:
+    visibility: verified_empty
+    provenance: dirscan
+    items: []
+  hooks:
+    visibility: verified
+    provenance: dirscan
+    items:
+      - event: PostToolUse
+        matcher: "Write|Edit"
+        type: command
+        command: "\"${CLAUDE_PLUGIN_ROOT}\"/scripts/meiseki-check.sh"
+        provenance: dirscan
+  commands:
+    visibility: verified_empty
+    provenance: dirscan
+    items: []
+  mcp_servers:
+    visibility: verified_empty
+    provenance: manifest
+    items: []
+  lsp_servers:
+    visibility: verified_empty
+    provenance: dirscan
+    items: []
+  monitors:
+    visibility: verified_empty
+    provenance: manifest
+    items: []
+  scripts:
+    visibility: verified
+    provenance: dirscan
+    items:
+      - file: scripts/codex-hook.sh
+        note: "Codex hook adapter (extracts the file path from the apply_patch envelope and bridges to the core)"
+        provenance: dirscan
+      - file: scripts/meiseki-check.sh
+        note: "Claude Code hook adapter (block decision, re-run guard, exclusion of non-document md)"
+        provenance: dirscan
+      - file: scripts/meiseki-lint-core.sh
+        note: "Host-independent core (target check -> masking -> textlint -> threshold decision)"
+        provenance: dirscan
+      - file: scripts/test-meiseki-check.sh
+        note: "Tests for the prh supplement dictionary and hook behavior (npm run test:hook)"
+        provenance: dirscan
+  data_references:
+    visibility: verified
+    provenance: dirscan
+    items:
+      - file: ".agents/skills/meiseki/references/patterns.md"
+        kind: "reference"
+        note: "A-to-H prioritized rewrite pattern collection"
+        provenance: dirscan
+      - file: ".agents/skills/meiseki/references/prh-llm-phrases.yml"
+        kind: "ledger"
+        note: "Supplement dictionary for LLM cliches and separated double negatives"
+        provenance: dirscan
+      - file: ".agents/skills/meiseki/references/textlint.config.json"
+        kind: "config"
+        provenance: dirscan
+      - file: "hooks/codex-hooks.json"
+        kind: "config"
+        note: "Hook definition for Codex CLI"
+        provenance: dirscan
+      - file: ".codex-plugin/plugin.json"
+        kind: "config"
+        note: "Codex CLI manifest"
+        provenance: dirscan
+flow:
+  lanes:
+    - { id: main, label: "skill invocation (manual clarification)" }
+    - { id: hook, label: "automatic hook check (PostToolUse)" }
+  placement:
+    - { ref: draft-md, lane: main, col: 0, kind: data, desc: "target Japanese Markdown" }
+    - { ref: meiseki, lane: main, col: 1 }
+    - { ref: clear-md, lane: main, col: 2, kind: artifact, desc: "clarified prose (after < before verified)" }
+    - { ref: edit-event, lane: hook, col: 0, kind: data, desc: "md written via Write / Edit" }
+    - { ref: meiseki-check.sh, lane: hook, col: 1, kind: script, desc: "textlint check via meiseki-lint-core.sh" }
+    - { ref: block-notice, lane: hook, col: 2, kind: artifact, desc: "decision:block (downgraded to advisory after 2 identical runs)" }
+  edges:
+    - { from: draft-md, to: meiseki }
+    - { from: meiseki, to: clear-md }
+    - { from: edit-event, to: meiseki-check.sh }
+    - { from: meiseki-check.sh, to: block-notice }
+    - { from: block-notice, to: meiseki, type: ref, label: "requests applying the skill" }
+  zones:
+    - { cols: [0, 0], label: "input" }
+    - { cols: [1, 1], label: "clarification (A-to-H rewrite)" }
+    - { cols: [2, 2], label: "output" }
+example_trace:
+  - { actor: user, kind: user, text: "\"make this README easier to read\" -> meiseki triggers" }
+  - { actor: meiseki, kind: skill, text: "reads the full text and pins down negation, conditions and dependency logic (Step 1)" }
+  - { actor: "textlint (npx)", kind: script, text: "collects ruleId and line numbers from the JSON output to locate high-load spots (Step 2)" }
+  - { actor: meiseki, kind: skill, text: "rewrites in patterns.md A-to-H order; collapsing double negatives comes first (Step 4)" }
+  - { actor: meiseki, kind: skill, text: "meaning check: truth values, conditions and numbers must match the original (Step 5)" }
+  - { actor: "textlint (npx)", kind: script, text: "re-run verifies after < before; double negatives at zero in principle (Step 6)" }
+  - { actor: meiseki, kind: skill, text: "passes the overcorrection check and returns only the rewritten text (Steps 7-8)" }

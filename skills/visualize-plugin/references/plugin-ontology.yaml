@@ -1,0 +1,109 @@
+# =============================================================
+# plugin-ontology.yaml -- ontology for Claude plugin visualization
+# Source: https://code.claude.com/docs/en/plugins-reference (retrieved 2026-08-29)
+# Role: the shared vocabulary for "what becomes a node, what becomes an edge,
+#       what becomes an attribute". Every per-plugin instance YAML
+#       (plugin-structure/v1.1) conforms to this vocabulary.
+# =============================================================
+ontology: claude-plugin/v1
+
+# ---------- classes (types that can become nodes: official components + extraction helpers) ----------
+classes:
+  Plugin:      { desc: "self-contained directory of components", official: true }
+  Manifest:    { desc: ".claude-plugin/plugin.json (metadata, inline definitions)", official: true }
+  Skill:       { desc: "skills/<name>/SKILL.md; invocable via /name or model auto-trigger", official: true }
+  Command:     { desc: "single .md under commands/ (lightweight skill); same discovery as skills", official: true }
+  Agent:       { desc: "subagents in agents/*.md; frontmatter: name/description/model/effort/maxTurns/tools/disallowedTools/skills/memory/background/isolation", official: true }
+  Hook:        { desc: "hooks/hooks.json; responds to lifecycle events", official: true }
+  McpServer:   { desc: "bundled via .mcp.json; tool names scoped as mcp__plugin_<plugin>_<server>__<tool>", official: true }
+  Tool:        { desc: "an individual tool exposed by an McpServer", official: true }
+  LspServer:   { desc: ".lsp.json; provides code intelligence", official: true }
+  Monitor:     { desc: "official component (unused by the plugins visualized so far)", official: true }
+  Script:      { desc: "deterministic processing bundled with a skill (.py/.js etc.); carrier of reproducibility", official: false }
+  DataAsset:   { desc: "ledgers, schemas, configs, templates, references", official: false }
+  Artifact:    { desc: "execution outputs (PPTX/PDF/JSON/DB records etc.)", official: false }
+  Zone:        { desc: "rendering-only grouping (phases, isolation boundaries)", official: false }
+
+# ---------- relations (types that can become edges) ----------
+relations:
+  contains:     { from: Plugin, to: "*",         desc: "composition (expressed by the inventory panels)" }
+  invokes:      { from: [User, Skill], to: [Skill, Command], desc: "activation: trigger match, /name, arguments (argument-hint)" }
+  orchestrates: { from: Skill, to: Skill,        desc: "serial/parallel launch with ordering, output routing and gates (rendered as numbered badges)" }
+  delegates_to: { from: Skill, to: Agent,        desc: "Task delegation (fan-out, independent context); degraded mode runs the agent files as manuals" }
+  calls:        { from: [Skill, Agent, Hook], to: Tool, desc: "MCP tool call (rendered as in-node badge or in the trace)" }
+  executes:     { from: Skill, to: Script,       desc: "runs deterministic processing" }
+  reads:        { from: "*", to: [DataAsset, Artifact] }
+  writes:       { from: "*", to: Artifact }
+  references:   { from: "*", to: DataAsset,      desc: "conventions/schema reference (dashed)" }
+  gated_by:     { from: Artifact, to: Skill,     desc: "mandatory audit before external delivery (diamond)" }
+  triggers_on:  { from: Hook, to: Event,         desc: "event subscription such as PreToolUse" }
+  fallback_of:  { from: Skill, to: Agent,        desc: "degraded mode (substitute execution where Task is unavailable)" }
+  isolates:     { from: Zone, to: "*",           desc: "structural isolation against contamination (e.g. derived data kept apart from verified sources)" }
+  handoff:      { from: Skill, to: Skill,        desc: "handover to another flow on a detection condition" }
+
+# ---------- hook event vocabulary (official table; value range of triggers_on) ----------
+hook_events: [SessionStart, Setup, UserPromptSubmit, UserPromptExpansion, PreToolUse,
+  PermissionRequest, PermissionDenied, PostToolUse, PostToolUseFailure, PostToolBatch,
+  Notification, MessageDisplay, SubagentStart, SubagentStop, TaskCreated, TaskCompleted,
+  Stop, StopFailure, TeammateIdle, InstructionsLoaded, ConfigChange, CwdChanged,
+  DirectoryAdded, FileChanged, WorktreeCreate, WorktreeRemove, PreCompact, PostCompact,
+  Elicitation, ElicitationResult, SessionEnd]
+hook_types: [command, http, mcp_tool, prompt, agent]
+
+# ---------- skill role vocabulary (role is NOT an official attribute; team-agreed classification) ----------
+skill_roles:
+  orchestrator: "manages launch order, output routing and gates of other skills/agents"
+  collector:    "crawls and collects from external sources"
+  analyzer:     "analyzes decision material (relationships, metadata checks etc.)"
+  gate:         "mandatory audit before external delivery (has reject conditions)"
+  generator:    "produces deliverables (decks, cards, reports, rewrites)"
+  importer:     "ingests input, validates schema"
+  maintenance:  "incremental updates, reprocessing"
+  inventory:    "stock management, scoring"
+  advisor:      "advice grounded in regulations (ISMS etc.)"
+  recorder:     "records interaction history"
+  reporter:     "aggregation, reporting"
+  knowledge:    "reference knowledge (site structure, domain knowledge)"
+
+# ---------- provenance and visibility (honesty attributes; REQUIRED on every component) ----------
+provenance:
+  manifest:        "read from plugin.json (most trustworthy)"
+  dirscan:         "confirmed by directory scan"
+  skillmd-mention: "extracted from SKILL.md body mentions (lower bound; wildcards mean unknown true count)"
+  user-report:     "reported by a user (entity not obtained)"
+  inferred:        "inferred from descriptions"
+visibility:
+  verified:        "entity confirmed"
+  verified_empty:  "scanned and empty (asserting 'none' is allowed)"
+  not_visible:     "cannot verify, e.g. source not mounted (MUST NOT be displayed as 'none')"
+
+# ---------- packaging dialects; extract auto-detects and records in the structure YAML ----------
+# Source: https://github.com/agentplugins/agent-plugins-spec spec/1.0.0.md (retrieved 2026-08-29)
+dialects:
+  claude-code:
+    desc: "Claude Code native format. Manifest at .claude-plugin/plugin.json; MCP config in .mcp.json or manifest mcpServers. May bundle skills/agents/hooks/commands/LSP/monitors (a superset of the standard)."
+    manifest: .claude-plugin/plugin.json
+    mcp_config: [.mcp.json, "plugin.json#mcpServers"]
+  agent-plugins-1.0:
+    desc: "Agent Plugins 1.0.0 (OpenAI/Amazon/Cursor/Microsoft/Vercel, published 2026-08-06). Closed-schema root plugin.json ($schema+name required, 10 allowed fields) + skills/ one level deep + mcp.json. commands/hooks/agents/LSP are out of v1 scope (their presence does not affect conformance). Client extensions live in the extensions field and reverse-domain directories (com.example.client/)."
+    manifest: plugin.json
+    mcp_config: [mcp.json]
+    allowed_manifest_fields: ["$schema", name, version, description, author, homepage, repository, license, keywords, extensions]
+    mcp_transports: [stdio, streamable-http, sse]
+    placeholders: ["${PLUGIN_ROOT}", "${PLUGIN_DATA}"]
+  unknown:
+    desc: "no manifest detected; dirscan only, plugin name inferred from the directory name"
+
+# spec_status: per-section attribute. Attached to entities (agents/ etc.) that exist but sit
+# outside the standard scope of the agent-plugins-1.0 dialect.
+spec_status:
+  in-spec:     "inside the dialect's standard scope"
+  out-of-spec: "entity exists but is outside the dialect's (v1) standard scope; treated as a client extension"
+
+# ---------- implications for extraction ----------
+extraction_notes: >-
+  In the claude.ai skill runtime only skills/ (SKILL.md plus bundled scripts/references) is
+  mounted; agents/, hooks/, commands/, .mcp.json and plugin.json are invisible. A complete
+  inventory (dirscan/manifest) therefore requires an environment that can see the full plugin
+  source (Claude Code, or a repository upload). Output produced in the restricted environment
+  is a skillmd-mention lower bound, and the visualization must say so.

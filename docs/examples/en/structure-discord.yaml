@@ -1,0 +1,121 @@
+schema: plugin-structure/v1.1
+ontology: claude-plugin/v1
+dialect: claude-code
+lang: en
+title: "discord plugin structure map"
+generated:
+  by: extract.py/1.1
+  at: "2026-08-30T07:01:14+00:00"
+  environment: claude-code-dirscan
+  source_root: "/private/tmp/claude-504/-Users-yukihiro-su-Desktop-Otameshi-workspace-practices/c414ead4-c2fc-46fc-9125-684fe52594a6/scratchpad/claude-plugins-official/external_plugins/discord"
+plugin:
+  name: discord  # provenance: manifest
+  version: 0.0.4
+  overview: "MCP channel plugin bridging Claude Code and Discord, with built-in access control via pairing and allowlists."
+note: null
+components:
+  skills:
+    visibility: verified
+    provenance: dirscan
+    items:
+      - id: configure
+        role: importer
+        description: "Setup skill that saves the Discord bot token to ~/.claude/channels/discord/.env and walks the user through the access policy."
+        pipeline_order: 1
+        note: "Never talks to Discord; it only writes state files (no MCP tool calls)"
+        uses:
+          mcp: {}
+          agents: []
+          scripts: []
+        provenance: dirscan
+      - id: access
+        role: maintenance
+        description: "Access management skill for approving pairings, editing allowlists and changing DM/group policy; refuses requests arriving via the channel as injection defense."
+        pipeline_order: 2
+        note: "Edits access.json only, never talking to Discord; the server re-reads it on every inbound message"
+        uses:
+          mcp: {}
+          agents: []
+          scripts: []
+        provenance: dirscan
+  agents:
+    visibility: verified_empty
+    provenance: dirscan
+    items: []
+  hooks:
+    visibility: verified_empty
+    provenance: dirscan
+    items: []
+  commands:
+    visibility: verified_empty
+    provenance: dirscan
+    items: []
+  mcp_servers:
+    visibility: verified
+    provenance: manifest
+    items:
+      - name: discord
+        tools: 5
+        tool_names: [reply, react, edit_message, download_attachment, fetch_messages]
+        transport: stdio
+        note: "bun run server.ts (also formats permission requests into DMs with Allow/Deny buttons)"
+        external: false
+        provenance: dirscan
+  lsp_servers:
+    visibility: verified_empty
+    provenance: dirscan
+    items: []
+  monitors:
+    visibility: verified_empty
+    provenance: manifest
+    items: []
+  scripts:
+    visibility: verified
+    provenance: dirscan
+    items:
+      - file: server.ts
+        note: "The MCP server itself (900 lines): access checks and forwarding of inbound DMs, exposes the 5 tools"
+        provenance: dirscan
+  data_references:
+    visibility: verified
+    provenance: dirscan
+    items:
+      - file: ACCESS.md
+        kind: "reference"
+        note: "Explains access control and delivery policy (pairing is the default)"
+        provenance: dirscan
+      - file: package.json
+        kind: "config"
+        note: "bun dependency manifest (discord.js / MCP SDK)"
+        provenance: dirscan
+flow:
+  lanes:
+    - { id: main, label: "message path" }
+    - { id: setup, label: "setup and access management (on the user's terminal)" }
+  placement:
+    - { ref: dm-in, lane: main, col: 0, kind: data, desc: "Discord DM (unknown senders get a 6-char code and are dropped)" }
+    - { ref: server-ts, lane: main, col: 1, kind: script, desc: "server.ts: checks access and forwards to Claude Code" }
+    - { ref: cc-session, lane: main, col: 2, kind: data, desc: "Claude Code session" }
+    - { ref: dm-reply, lane: main, col: 3, kind: artifact, desc: "responses via reply / react / edit_message" }
+    - { ref: configure, lane: setup, col: 0 }
+    - { ref: access, lane: setup, col: 1 }
+    - { ref: state-files, lane: setup, col: 2, kind: artifact, desc: ".env and access.json under ~/.claude/channels/discord/" }
+  edges:
+    - { from: dm-in, to: server-ts }
+    - { from: server-ts, to: cc-session }
+    - { from: cc-session, to: dm-reply }
+    - { from: configure, to: state-files }
+    - { from: access, to: state-files }
+    - { from: state-files, to: server-ts, type: ref, label: "re-read at boot and on every inbound message" }
+  zones:
+    - { cols: [0, 1], label: "receive and check" }
+    - { cols: [2, 2], label: "conversation" }
+    - { cols: [3, 3], label: "response" }
+example_trace:
+  - { actor: user, kind: user, text: "pastes the bot token -> configure saves it to .env" }
+  - { actor: configure, kind: skill, text: "explains the default pairing policy and reach (the Public Bot setting)" }
+  - { actor: discord, kind: mcp, text: "replies to an unknown sender's DM with a 6-char code and drops the message" }
+  - { actor: user, kind: user, text: "approves the sender with /discord:access pair <code>" }
+  - { actor: access, kind: skill, text: "adds them to allowFrom in access.json; the server re-reads per message" }
+  - { actor: discord, kind: mcp, text: "forwards subsequent DMs into the Claude Code session" }
+  - { actor: discord, kind: mcp, text: "replies via the reply tool; permission checks arrive as DMs with Allow/Deny buttons" }
