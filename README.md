@@ -6,7 +6,6 @@ Inventories the structure of Claude Code plugins and Agent Plugins 1.0 plugins.
 From that inventory it deterministically generates two artifacts.
 One is a reviewable **structure YAML**, the canonical record.
 The other is an **Excalidraw structure map**.
-Formerly plugin-visualizer, then cutaway as of 2026-08-30.
 
 ## Three-layer architecture
 

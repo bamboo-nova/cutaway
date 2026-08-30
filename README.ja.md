@@ -4,7 +4,6 @@
 
 Claude Code プラグイン／Agent Plugins 1.0 の構造を棚卸しするプラグイン。
 レビュー可能な **structure YAML（正本）** と **Excalidraw 構成図** を決定的に生成する。
-旧称 plugin-visualizer（2026-08-30 に cutaway へ改名）。
 
 ## 3層アーキテクチャ
 
