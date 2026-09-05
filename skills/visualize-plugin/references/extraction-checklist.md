@@ -64,10 +64,17 @@ order"). Parallel fan-outs get no number.
 
 - lanes: `main` is required. Put quarantined material (contamination-forbidden data,
   derived series) in a `style: isolation` lane. On-demand skills may get their own lane.
-- placement: nodes are skills + key data/artifacts only. `col` = execution order.
+- placement: nodes are skills + key data/artifacts only. `col` = execution order
+  **within the lane** — every lane starts at col 0 with no gaps.
   The typical shape: input data -> importer -> orchestrator -> store -> gate -> artifact.
+- **each lane must read as one linear flow.** When a process alternates between actors
+  (planner -> verifier -> planner -> implementer ...), do NOT bounce nodes between
+  actor lanes — the arrows tangle. Cut the process into phase lanes (e.g. a planning
+  loop lane and an implementation loop lane), joined by a single cross-lane flow edge;
+  name the actor in the lane label and each node's `desc`.
 - edges: primary flow has no type (solid); references/optional paths are `type: ref`
-  (dashed). **MCP / agents / scripts never become edges** (they are badges).
+  (dashed). Loops are a `ref` back-edge to an earlier node in the same lane.
+  **MCP / agents / scripts never become edges** (they are badges).
 - zones: split the main lane into phases (input / collection / stock / audit / artifacts).
 
 ## 6. example_trace

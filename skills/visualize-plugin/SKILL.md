@@ -115,6 +115,10 @@ checks text overflow, node overlap, CJK rendering, and legend/zone placement.
 
 - The YAML is canonical. Hand-edits to the figure are cosmetic only; structural changes
   always go back into the YAML.
+- Flow lanes are linear: per-lane 0-based consecutive cols, one process per lane,
+  at most one cross-lane flow edge, loops as `ref` back-edges (see structure-schema.md).
+  `validate.js` enforces the col rule and reports arrow crossings / overlaps /
+  node pass-through on the figure as warnings.
 - No emoji in YAML strings (tofu risk in export fonts).
 - Plugins with more than 12 agents get `groups` (true counts stay in panel titles).
 - A missing plugin.json declaration does NOT mean a component is absent — default-path

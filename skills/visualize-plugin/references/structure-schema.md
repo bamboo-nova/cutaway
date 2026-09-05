@@ -146,7 +146,16 @@ flow:
 Rules:
 - Nodes are **skills and key data/artifacts only**. MCP / agent / script dependencies
   stay as `uses` badges, never edges (wiring-reduction rule).
-- `col` is the execution order within the lane (ELK partition).
+- `col` is the execution order **within the lane** (ELK partition). Each lane's cols
+  MUST start at 0 and be consecutive; parallel nodes may share a col. Never number
+  cols globally across lanes — the layout degenerates into a vertical stack and the
+  arrows tangle (`validate --yaml` rejects it).
+- **Design each lane as a linear flow.** Do not zigzag one process across lanes
+  (actor A -> actor B -> actor A ...): split the process into phase lanes instead and
+  connect them with at most ONE cross-lane flow edge (`validate --yaml` warns beyond
+  that). Feedback loops are a `type: ref` back-edge to an earlier node in the same
+  lane. Express who does each step in the lane label and node `desc`, not by hopping
+  lanes.
 - Skills with role `gate` render as diamonds automatically.
 
 ## example_trace — representative invocation

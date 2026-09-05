@@ -9,7 +9,9 @@ const path = require("path");
 const yaml = require("js-yaml");
 
 const findings = [];
+const warns = [];
 const bad = (where, check, msg) => findings.push(`${where}:${check}: ${msg}`);
+const warn = (where, check, msg) => warns.push(`${where}:${check}: ${msg}`);
 
 // ---------- YAML mode ----------
 function validateYaml(file) {
@@ -73,6 +75,23 @@ function validateYaml(file) {
         if (!refs.has(end)) bad(F, "flow.edges", `node not in placement: ${end}`);
       }
       if (e.type && !["flow", "ref"].includes(e.type)) bad(F, "flow.edges", `type must be flow|ref: ${e.type}`);
+    }
+    // Layout contract: `col` is per-lane execution order. Each lane's cols must start
+    // at 0 and be consecutive (parallel nodes may share a col). Global numbering
+    // across lanes degenerates the ELK layout into a vertical stack.
+    for (const laneId of laneIds) {
+      const cols = [...new Set((spec.flow.placement || [])
+        .filter(p => p.lane === laneId && typeof p.col === "number")
+        .map(p => p.col))].sort((a, b) => a - b);
+      if (cols.length && (cols[0] !== 0 || cols[cols.length - 1] !== cols.length - 1)) {
+        bad(F, `flow.lanes.${laneId}`, `cols must start at 0 and be consecutive within the lane: [${cols.join(", ")}]`);
+      }
+    }
+    const laneOf = new Map((spec.flow.placement || []).map(p => [p.ref, p.lane]));
+    const crossFlow = (spec.flow.edges || []).filter(e =>
+      e.type !== "ref" && laneOf.get(e.from) !== laneOf.get(e.to));
+    if (crossFlow.length > 1) {
+      warn(F, "flow.edges", `${crossFlow.length} flow edges cross lanes (${crossFlow.map(e => `${e.from}->${e.to}`).join(", ")}) — design each lane as a linear flow with at most one connecting flow edge; feedback loops are type: ref`);
     }
     for (const z of spec.flow.zones || []) {
       if (!Array.isArray(z.cols) || z.cols.length !== 2) bad(F, "flow.zones", `cols must be [from, to]: ${z.label}`);
@@ -159,6 +178,64 @@ function validateExcalidraw(file) {
       }
     }
   }
+  // Arrow legibility metrics (warnings, not gates): crossings, near-parallel overlap,
+  // and pass-through over unrelated labeled nodes. High counts usually mean the flow
+  // YAML zigzags between lanes — fix the YAML, not the figure.
+  const arrows = els.filter(el => el.type === "arrow" && Array.isArray(el.points) && el.points.length >= 2);
+  const segsOf = el => {
+    const pts = el.points.map(p => [el.x + p[0], el.y + p[1]]);
+    return pts.slice(0, -1).map((p, i) => [p, pts[i + 1]]);
+  };
+  const crossing = (s1, s2) => {
+    const [[ax, ay], [bx, by]] = s1, [[cx, cy], [dx, dy]] = s2;
+    const d = (bx - ax) * (dy - cy) - (by - ay) * (dx - cx);
+    if (Math.abs(d) < 1e-9) return false;
+    const t = ((cx - ax) * (dy - cy) - (cy - ay) * (dx - cx)) / d;
+    const u = ((cx - ax) * (by - ay) - (cy - ay) * (bx - ax)) / d;
+    return t > 0.02 && t < 0.98 && u > 0.02 && u < 0.98;
+  };
+  const parallelOverlap = (s1, s2) => {
+    const [a, b] = s1, [c, d] = s2;
+    const v1 = [b[0] - a[0], b[1] - a[1]], v2 = [d[0] - c[0], d[1] - c[1]];
+    const l1 = Math.hypot(v1[0], v1[1]), l2 = Math.hypot(v2[0], v2[1]);
+    if (l1 < 20 || l2 < 20) return false;
+    if (Math.abs((v1[0] * v2[0] + v1[1] * v2[1]) / (l1 * l2)) < 0.98) return false;
+    const proj = p => {
+      const t = Math.max(0, Math.min(1, ((p[0] - a[0]) * v1[0] + (p[1] - a[1]) * v1[1]) / (l1 * l1)));
+      const q = [a[0] + v1[0] * t, a[1] + v1[1] * t];
+      return [Math.hypot(p[0] - q[0], p[1] - q[1]), t];
+    };
+    const [d1, t1] = proj(c), [d2, t2] = proj(d);
+    if (Math.min(d1, d2) > 10) return false;
+    return Math.min(Math.max(t1, t2), 1) - Math.max(Math.min(t1, t2), 0) > 0.25;
+  };
+  const segHitsBox = (s, box) => {
+    const [[x1, y1], [x2, y2]] = s;
+    const pad = -4;
+    const rx1 = box.x - pad, ry1 = box.y - pad;
+    const rx2 = box.x + box.width + pad, ry2 = box.y + box.height + pad;
+    let inside = 0;
+    for (let i = 0; i <= 24; i++) {
+      const t = i / 24, px = x1 + (x2 - x1) * t, py = y1 + (y2 - y1) * t;
+      if (px > rx1 && px < rx2 && py > ry1 && py < ry2) inside++;
+    }
+    return inside > 3;
+  };
+  let crossPairs = 0, overlapPairs = 0, nodePass = 0;
+  for (let i = 0; i < arrows.length; i++) {
+    for (let j = i + 1; j < arrows.length; j++) {
+      const S1 = segsOf(arrows[i]), S2 = segsOf(arrows[j]);
+      if (S1.some(a => S2.some(b => crossing(a, b)))) crossPairs++;
+      else if (S1.some(a => S2.some(b => parallelOverlap(a, b)))) overlapPairs++;
+    }
+  }
+  for (const ar of arrows) {
+    const bound = new Set([ar.startBinding, ar.endBinding].filter(Boolean).map(b => b.elementId));
+    if (solidBoxes.some(n => !bound.has(n.id) && segsOf(ar).some(s => segHitsBox(s, n)))) nodePass++;
+  }
+  if (crossPairs) warn(F, "arrows.crossing", `${crossPairs} arrow pair(s) cross — reduce lane hops in the flow YAML`);
+  if (overlapPairs) warn(F, "arrows.overlap", `${overlapPairs} arrow pair(s) run nearly on top of each other`);
+  if (nodePass) warn(F, "arrows.node-pass", `${nodePass} arrow(s) pass through an unrelated node`);
 }
 
 // ---------- main ----------
@@ -172,9 +249,10 @@ if (argv[0] === "--yaml") {
   console.error("usage: node validate.js (--yaml <structure.yaml> | <file.excalidraw>)");
   process.exit(2);
 }
+for (const w of warns) console.error("WARN " + w);
 if (findings.length) {
   for (const f of findings) console.error("NG " + f);
   console.error(`${findings.length} finding(s)`);
   process.exit(1);
 }
-console.log("OK " + argv.filter(a => a !== "--yaml")[0]);
+console.log("OK " + argv.filter(a => a !== "--yaml")[0] + (warns.length ? ` (${warns.length} warning(s))` : ""));
