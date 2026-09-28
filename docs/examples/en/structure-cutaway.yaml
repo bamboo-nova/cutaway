@@ -112,10 +112,10 @@ flow:
     - { cols: [1, 1], label: "extraction and draft completion (quality gate)" }
     - { cols: [2, 3], label: "record and figure" }
 example_trace:
-  - { actor: user, kind: user, text: "\"visualize the meiseki plugin\" -> visualize-plugin triggers" }
-  - { actor: extract.py, kind: script, text: "auto-detects the dialect, dirscans the inventory and emits a TODO-marked draft (Layer 1)" }
+  - { actor: user, kind: user, text: "\"visualize the meiseki plugin\" -> visualize-plugin triggers", node: plugin-src }
+  - { actor: extract.py, kind: script, text: "auto-detects the dialect, dirscans the inventory and emits a TODO-marked draft (Layer 1)", node: plugin-src }
   - { actor: visualize-plugin, kind: skill, text: "resolves TODOs (roles, flow, trace) and confirms the role list with the user (Layer 2)" }
-  - { actor: validate.js, kind: script, text: "--yaml checks leftover TODOs, vocabulary and reference resolution" }
-  - { actor: convert.js, kind: script, text: "generates the .excalidraw with ELK auto-layout (Layer 3)" }
-  - { actor: validate.js, kind: script, text: "checks bound-text coords and overflow; re-conversion confirms byte-identical determinism" }
-  - { actor: user, kind: user, text: "opens it at excalidraw.com; fixes go into the YAML and re-convert" }
+  - { actor: validate.js, kind: script, text: "--yaml checks leftover TODOs, vocabulary and reference resolution", node: structure-yaml }
+  - { actor: convert.js, kind: script, text: "generates the .excalidraw with ELK auto-layout (Layer 3)", node: excalidraw-fig }
+  - { actor: validate.js, kind: script, text: "checks bound-text coords and overflow; re-conversion confirms byte-identical determinism", node: excalidraw-fig }
+  - { actor: user, kind: user, text: "opens it at excalidraw.com; fixes go into the YAML and re-convert", node: excalidraw-fig }

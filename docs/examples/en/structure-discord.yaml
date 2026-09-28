@@ -112,10 +112,10 @@ flow:
     - { cols: [2, 2], label: "conversation" }
     - { cols: [3, 3], label: "response" }
 example_trace:
-  - { actor: user, kind: user, text: "pastes the bot token -> configure saves it to .env" }
+  - { actor: user, kind: user, text: "pastes the bot token -> configure saves it to .env", node: configure }
   - { actor: configure, kind: skill, text: "explains the default pairing policy and reach (the Public Bot setting)" }
-  - { actor: discord, kind: mcp, text: "replies to an unknown sender's DM with a 6-char code and drops the message" }
-  - { actor: user, kind: user, text: "approves the sender with /discord:access pair <code>" }
+  - { actor: discord, kind: mcp, text: "replies to an unknown sender's DM with a 6-char code and drops the message", node: dm-in }
+  - { actor: user, kind: user, text: "approves the sender with /discord:access pair <code>", node: access }
   - { actor: access, kind: skill, text: "adds them to allowFrom in access.json; the server re-reads per message" }
-  - { actor: discord, kind: mcp, text: "forwards subsequent DMs into the Claude Code session" }
-  - { actor: discord, kind: mcp, text: "replies via the reply tool; permission checks arrive as DMs with Allow/Deny buttons" }
+  - { actor: discord, kind: mcp, text: "forwards subsequent DMs into the Claude Code session", node: server-ts }
+  - { actor: discord, kind: mcp, text: "replies via the reply tool; permission checks arrive as DMs with Allow/Deny buttons", node: dm-reply }

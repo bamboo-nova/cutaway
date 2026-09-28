@@ -1,6 +1,6 @@
 # render-style.yaml -- ontology class/role -> color, shape, legend (single source of truth for rendering)
 # All chrome strings rendered into diagrams live under labels.<lang>; content strings come from the structure YAML.
-style: claude-plugin-render/v1.1
+style: claude-plugin-render/v1.2
 palette:                       # [stroke, fill]
   orchestrator: ["#6741d9", "#d0bfff"]
   generator:    ["#1971c2", "#a5d8ff"]   # generic skill (analyzer/collector/importer etc. share this)
@@ -21,6 +21,26 @@ palette:                       # [stroke, fill]
   command:      ["#1971c2", "#a5d8ff"]
   data:         ["#495057", "#f1f3f5"]
   user:         ["#495057", "#e9ecef"]
+palette_dark:                  # [stroke, fill] for the HTML output's dark theme; keys mirror `palette`
+  orchestrator: ["#b197fc", "#2b1f5c"]
+  generator:    ["#74c0fc", "#12385c"]
+  collector:    ["#74c0fc", "#12385c"]
+  analyzer:     ["#74c0fc", "#12385c"]
+  importer:     ["#74c0fc", "#12385c"]
+  maintenance:  ["#74c0fc", "#12385c"]
+  inventory:    ["#74c0fc", "#12385c"]
+  advisor:      ["#74c0fc", "#12385c"]
+  recorder:     ["#74c0fc", "#12385c"]
+  reporter:     ["#74c0fc", "#12385c"]
+  knowledge:    ["#91a7ff", "#243063"]
+  gate:         ["#ffa94d", "#5c2f0c"]
+  agent:        ["#66d9e8", "#0b3f47"]
+  mcp:          ["#8ce99a", "#1b4d2a"]
+  script:       ["#e599f7", "#4a1a5c"]
+  hook:         ["#ff8787", "#5c1a1a"]
+  command:      ["#74c0fc", "#12385c"]
+  data:         ["#ced4da", "#2b2f33"]
+  user:         ["#ced4da", "#33373b"]
 shapes:
   gate: diamond            # audits / pass-fail decisions
   default: rectangle
@@ -66,6 +86,12 @@ labels:
       agents_more: "…他{n}体"
       group_count: "（{n}体）"
       none: "なし"
+      theme_toggle: "テーマ切替"
+      reset_view: "表示をリセット"
+      flow_hint: "ノードをクリックで関連を強調 ／ ドラッグで移動 ／ ホイールで拡大縮小"
+      footer: "cutaway が structure YAML（plugin-structure/v1.1、{name}{version}）から決定論的に生成。図は派生物であり、構造の変更は YAML の差分で扱う。"
+      motion: "モーション"
+      scenarios: "利用シナリオ"
   en:
     legend:
       - [orchestrator, "orchestrator"]
@@ -102,3 +128,9 @@ labels:
       agents_more: "…{n} more"
       group_count: " ({n})"
       none: "none"
+      theme_toggle: "Toggle theme"
+      reset_view: "Reset view"
+      flow_hint: "click a node to highlight its links / drag to pan / wheel to zoom"
+      footer: "Generated deterministically by cutaway from the structure YAML (plugin-structure/v1.1, {name}{version}). The figure is derived; structural changes are YAML diffs."
+      motion: "Motion"
+      scenarios: "Scenarios"

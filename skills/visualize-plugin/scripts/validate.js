@@ -2,14 +2,19 @@
 /* cutaway deterministic validation
  *   node validate.js --yaml <structure.yaml>   ... integrity checks on the canonical YAML (completion gate)
  *   node validate.js <file.excalidraw>         ... binding / coordinate / overflow checks on the generated figure
+ *   node validate.js <file.html> [--yaml-source <structure.yaml>] [--style <render-style.yaml>]  ... self-containment / coverage / determinism checks on the HTML map
  * Findings are listed as "file:where:check: message"; exits 1 when any exist.
  */
 const fs = require("fs");
 const path = require("path");
+const os = require("os");
+const { execFileSync } = require("child_process");
 const yaml = require("js-yaml");
 
 const findings = [];
 const warns = [];
+const SECTIONS = ["skills", "agents", "hooks", "commands", "mcp_servers",
+  "lsp_servers", "monitors", "scripts", "data_references"];
 const bad = (where, check, msg) => findings.push(`${where}:${check}: ${msg}`);
 const warn = (where, check, msg) => warns.push(`${where}:${check}: ${msg}`);
 
@@ -30,8 +35,6 @@ function validateYaml(file) {
   const VIS = Object.keys(onto.visibility || {});
   const PROV = Object.keys(onto.provenance || {});
   const ROLES = Object.keys(onto.skill_roles || {});
-  const SECTIONS = ["skills", "agents", "hooks", "commands", "mcp_servers",
-    "lsp_servers", "monitors", "scripts", "data_references"];
   const C = spec.components || {};
   for (const k of SECTIONS) {
     const s = C[k];
@@ -97,14 +100,36 @@ function validateYaml(file) {
       if (!Array.isArray(z.cols) || z.cols.length !== 2) bad(F, "flow.zones", `cols must be [from, to]: ${z.label}`);
     }
   }
-  if (spec.example_trace) {
-    const KINDS = ["user", "skill", "orchestrator", "agent", "mcp", "gate", "data", "script"];
-    spec.example_trace.forEach((tr, i) => {
-      if (!KINDS.includes(tr.kind)) bad(F, `example_trace[${i}]`, `invalid kind: ${tr.kind}`);
-      if (!tr.actor || !tr.text) bad(F, `example_trace[${i}]`, "actor/text are required");
+  // Scenarios: one `example_trace`, or several `example_traces` (id / label / summary / steps).
+  const scenarios = [];
+  if (Array.isArray(spec.example_traces)) {
+    if (spec.example_trace) bad(F, "example_traces", "use either example_trace or example_traces, not both");
+    const ids = new Set();
+    spec.example_traces.forEach((t, i) => {
+      const w = `example_traces[${i}]`;
+      if (!t || !t.id || !t.label) bad(F, w, "id and label are required");
+      if (t && t.id != null && !/^[A-Za-z0-9_-]+$/.test(String(t.id))) bad(F, `${w}.id`, `id must match [A-Za-z0-9_-]+: ${t.id}`);
+      if (t && t.id != null) { if (ids.has(String(t.id))) bad(F, `${w}.id`, `duplicate id: ${t.id}`); ids.add(String(t.id)); }
+      if (!t || !Array.isArray(t.steps)) bad(F, `${w}.steps`, "steps must be a list");
+      scenarios.push({ where: `${w}.steps`, steps: (t && Array.isArray(t.steps)) ? t.steps : [] });
     });
-    const n = spec.example_trace.length;
-    if (n < 3 || n > 12) bad(F, "example_trace", `unusual step count: ${n} (aim for 5-9)`);
+  } else if (spec.example_trace) {
+    scenarios.push({ where: "example_trace", steps: spec.example_trace });
+  }
+  const KINDS = ["user", "skill", "orchestrator", "agent", "mcp", "gate", "data", "script"];
+  const refs = new Set(spec.flow && spec.flow.placement ? spec.flow.placement.map(p => p.ref) : []);
+  for (const { where, steps } of scenarios) {
+    steps.forEach((tr, i) => {
+      if (!KINDS.includes(tr.kind)) bad(F, `${where}[${i}]`, `invalid kind: ${tr.kind}`);
+      if (!tr.actor || !tr.text) bad(F, `${where}[${i}]`, "actor/text are required");
+      if (tr.node != null && !refs.has(tr.node)) bad(F, `${where}[${i}].node`, `not in flow.placement: ${tr.node}`);
+    });
+    const n = steps.length;
+    if (n < 3 || n > 12) bad(F, where, `unusual step count: ${n} (aim for 5-9)`);
+    const resolvable = steps.some(tr => (tr.node != null && refs.has(tr.node)) || refs.has(tr.actor));
+    if (refs.size && !resolvable) {
+      warn(F, where, "no step resolves to a flow node; the HTML map cannot highlight this scenario (add node: to steps)");
+    }
   }
 }
 
@@ -238,15 +263,100 @@ function validateExcalidraw(file) {
   if (nodePass) warn(F, "arrows.node-pass", `${nodePass} arrow(s) pass through an unrelated node`);
 }
 
+// ---------- HTML mode ----------
+// The HTML map must be self-contained: no external scripts/styles/images/frames and no network APIs.
+const FORBIDDEN_MARKUP = [
+  [/<script[^>]*\ssrc\s*=/i, "external script"],
+  [/<link[^>]*\shref\s*=\s*["']?(?:https?:)?\/\//i, "external stylesheet"],
+  [/<iframe\b/i, "iframe"],
+  [/<img[^>]*\ssrc\s*=\s*["']?(?:https?:)?\/\//i, "external image"],
+];
+const FORBIDDEN_CSS = [
+  [/@import\b/i, "css @import"],
+  [/url\(\s*["']?(?:https?:)?\/\//i, "external url()"],
+];
+const FORBIDDEN_SCRIPT = /\b(fetch|XMLHttpRequest|WebSocket|EventSource|navigator\.sendBeacon|importScripts)\s*\(/;
+const escAttr = s => String(s == null ? "" : s).replace(/[&<>"']/g,
+  c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+function validateHtml(file, yamlSource, stylePath) {
+  const html = fs.readFileSync(file, "utf8");
+  const F = path.basename(file);
+  for (const [re, what] of FORBIDDEN_MARKUP) if (re.test(html)) bad(F, "external", `${what} found`);
+  const styles = [...html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)].map(m => m[1]).join("\n");
+  for (const [re, what] of FORBIDDEN_CSS) if (re.test(styles)) bad(F, "external", `${what} found`);
+  const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m => m[1]).join("\n");
+  if (FORBIDDEN_SCRIPT.test(scripts)) bad(F, "external", "network API in script");
+  if (!yamlSource) {
+    warn(F, "coverage", "no --yaml-source given; coverage and determinism checks skipped");
+    return;
+  }
+  let spec;
+  try {
+    spec = yaml.load(fs.readFileSync(yamlSource, "utf8"));
+  } catch (e) {
+    bad(F, "yaml-source", `cannot read ${yamlSource}: ${String(e.message).split("\n")[0]}`);
+    return;
+  }
+  for (const k of SECTIONS) {
+    if (!html.includes(`data-panel="${escAttr(k)}"`)) bad(F, "coverage.panel", `panel missing: ${k}`);
+  }
+  const Fl = spec.flow;
+  if (Fl && Fl.lanes && Fl.placement) {
+    for (const p of Fl.placement) {
+      if (!html.includes(`data-ref="${escAttr(p.ref)}"`)) bad(F, "coverage.node", `flow node missing: ${p.ref}`);
+    }
+    for (const e of Fl.edges || []) {
+      if (!html.includes(`data-from="${escAttr(e.from)}" data-to="${escAttr(e.to)}"`)) {
+        bad(F, "coverage.edge", `flow edge missing: ${e.from} -> ${e.to}`);
+      }
+    }
+  }
+  const scenarioList = Array.isArray(spec.example_traces) ? spec.example_traces
+    : (spec.example_trace ? [{ id: "default", steps: spec.example_trace }] : []);
+  if (scenarioList.length) {
+    const want = scenarioList.reduce((n, t) => n + ((t && Array.isArray(t.steps)) ? t.steps.length : 0), 0);
+    const stepCount = (html.match(/<li data-step="/g) || []).length;
+    if (stepCount !== want) bad(F, "coverage.step", `trace steps: html has ${stepCount}, yaml has ${want}`);
+    for (const m of html.matchAll(/<li data-step="\d+" data-node="([^"]*)"/g)) {
+      if (!html.includes(`data-ref="${m[1]}"`)) bad(F, "coverage.step-node", `trace step node not in flow: ${m[1]}`);
+    }
+    if (Array.isArray(spec.example_traces)) {
+      for (const t of spec.example_traces) {
+        if (t && t.id != null && !html.includes(`data-scn="${escAttr(t.id)}"`)) bad(F, "coverage.scenario", `scenario missing: ${t.id}`);
+      }
+    }
+  }
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "cutaway-validate-"));
+  const tmp = path.join(dir, "re.html");
+  try {
+    const args = [path.join(__dirname, "convert.js"), yamlSource, "-o", tmp];
+    if (stylePath) args.push("--style", stylePath);
+    execFileSync(process.execPath, args, { stdio: "pipe" });
+    if (!fs.readFileSync(tmp).equals(fs.readFileSync(file))) {
+      bad(F, "determinism", "re-converting the YAML does not reproduce this file byte-for-byte");
+    }
+  } catch (e) {
+    const detail = (e.stderr && String(e.stderr).trim()) || String(e.message).split("\n")[0];
+    bad(F, "determinism", `re-conversion failed: ${detail}`);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
+
 // ---------- main ----------
 const argv = process.argv.slice(2);
 if (argv[0] === "--yaml") {
   if (!argv[1]) { console.error("usage: node validate.js --yaml <structure.yaml>"); process.exit(2); }
   validateYaml(argv[1]);
+} else if (argv[0] && argv[0].toLowerCase().endsWith(".html")) {
+  const i = argv.indexOf("--yaml-source");
+  const j = argv.indexOf("--style");
+  validateHtml(argv[0], i >= 0 ? argv[i + 1] : null, j >= 0 ? argv[j + 1] : null);
 } else if (argv[0]) {
   validateExcalidraw(argv[0]);
 } else {
-  console.error("usage: node validate.js (--yaml <structure.yaml> | <file.excalidraw>)");
+  console.error("usage: node validate.js (--yaml <structure.yaml> | <file.excalidraw> | <file.html> [--yaml-source <structure.yaml>] [--style <render-style.yaml>])");
   process.exit(2);
 }
 for (const w of warns) console.error("WARN " + w);

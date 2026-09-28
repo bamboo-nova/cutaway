@@ -118,10 +118,10 @@ flow:
     - { cols: [1, 1], label: "明晰化（A→H リライト）" }
     - { cols: [2, 2], label: "出力" }
 example_trace:
-  - { actor: user, kind: user, text: "「この README をわかりやすく直して」-> meiseki 発動" }
+  - { actor: user, kind: user, text: "「この README をわかりやすく直して」-> meiseki 発動", node: draft-md }
   - { actor: meiseki, kind: skill, text: "全文を読み、否定・条件・係り受けの論理構造を確定させる（Step 1）" }
-  - { actor: "textlint (npx)", kind: script, text: "JSON 出力から ruleId と行番号を取得し高負荷箇所を特定（Step 2）" }
+  - { actor: "textlint (npx)", kind: script, text: "JSON 出力から ruleId と行番号を取得し高負荷箇所を特定（Step 2）", node: meiseki }
   - { actor: meiseki, kind: skill, text: "patterns.md の A→H 順にリライト。二重否定の畳み込みが最優先（Step 4）" }
   - { actor: meiseki, kind: skill, text: "意味の検算: 真偽の反転・条件・数値の一致を原文と突き合わせる（Step 5）" }
-  - { actor: "textlint (npx)", kind: script, text: "再実行で after < before を検算。二重否定は原則 0 件（Step 6）" }
-  - { actor: meiseki, kind: skill, text: "やりすぎチェックを通し、リライト後の本文だけを返す（Step 7-8）" }
+  - { actor: "textlint (npx)", kind: script, text: "再実行で after < before を検算。二重否定は原則 0 件（Step 6）", node: meiseki }
+  - { actor: meiseki, kind: skill, text: "やりすぎチェックを通し、リライト後の本文だけを返す（Step 7-8）", node: clear-md }

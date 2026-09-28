@@ -1,0 +1,52 @@
+schema: plugin-structure/v1.1
+ontology: claude-plugin/v1
+dialect: unknown
+lang: en
+title: "trace-scenarios fixture"
+generated: { by: hand, at: "2026-09-23T00:00:00Z", environment: claude-code-dirscan, source_root: /dev/null }
+plugin: { name: trace-scenarios, version: null, overview: null }
+note: null
+components:
+  skills:
+    visibility: verified
+    provenance: dirscan
+    items:
+      - { id: alpha, role: generator, description: "first skill", pipeline_order: null, provenance: dirscan }
+      - { id: beta, role: gate, description: "second skill", pipeline_order: null, provenance: dirscan }
+  agents:          { visibility: verified_empty, provenance: dirscan, items: [] }
+  hooks:           { visibility: verified_empty, provenance: dirscan, items: [] }
+  commands:        { visibility: verified_empty, provenance: dirscan, items: [] }
+  mcp_servers:     { visibility: verified_empty, provenance: dirscan, items: [] }
+  lsp_servers:     { visibility: verified_empty, provenance: dirscan, items: [] }
+  monitors:        { visibility: verified_empty, provenance: dirscan, items: [] }
+  scripts:         { visibility: verified_empty, provenance: dirscan, items: [] }
+  data_references: { visibility: verified_empty, provenance: dirscan, items: [] }
+flow:
+  lanes:
+    - { id: main, label: "main" }
+  placement:
+    - { ref: input, lane: main, col: 0, kind: data, desc: "input" }
+    - { ref: alpha, lane: main, col: 1 }
+    - { ref: beta, lane: main, col: 2 }
+    - { ref: output, lane: main, col: 3, kind: artifact, desc: "output" }
+  edges:
+    - { from: input, to: alpha }
+    - { from: alpha, to: beta }
+    - { from: beta, to: output }
+  zones: []
+example_traces:
+  - id: full
+    label: "Full run"
+    summary: "The usual path: input through alpha and beta to the output."
+    steps:
+      - { actor: user, kind: user, text: "drops a file", node: input }
+      - { actor: alpha, kind: skill, text: "reads it" }
+      - { actor: beta, kind: gate, text: "checks and passes" }
+      - { actor: writer, kind: script, text: "writes the result", node: output }
+  - id: dry
+    label: "Dry run"
+    summary: "Stops after alpha; nothing is written."
+    steps:
+      - { actor: user, kind: user, text: "drops a file with --dry-run", node: input }
+      - { actor: alpha, kind: skill, text: "reads it" }
+      - { actor: alpha, kind: skill, text: "reports what it would do" }

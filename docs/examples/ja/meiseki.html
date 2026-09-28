@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>meiseki プラグイン構成図</title>
+<script>(function(){try{var t=localStorage.getItem("cutaway-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}})();</script>
+<style>
+:root{--bg:#ffffff;--fg:#1e1e1e;--muted:#868e96;--sub:#343a40;--border:#adb5bd;--panel:#ffffff;--zone:#adb5bd;--iso:#e03131;--edge:#343a40;--edge-ref:#868e96;--btn:#f1f3f5;--btn-fg:#343a40;--tok:#f08c00;color-scheme:light}
+.role-orchestrator{--stroke:#6741d9;--fill:#d0bfff}
+.role-gate{--stroke:#e8590c;--fill:#ffd8a8}
+.role-generator{--stroke:#1971c2;--fill:#a5d8ff}
+.role-agent{--stroke:#0c8599;--fill:#99e9f2}
+.role-mcp{--stroke:#2f9e44;--fill:#b2f2bb}
+.role-script{--stroke:#9c36b5;--fill:#eebefa}
+.role-data{--stroke:#495057;--fill:#f1f3f5}
+.role-user{--stroke:#495057;--fill:#e9ecef}
+.role-hook{--stroke:#c92a2a;--fill:#ffc9c9}
+.role-collector{--stroke:#1971c2;--fill:#a5d8ff}
+.role-analyzer{--stroke:#1971c2;--fill:#a5d8ff}
+.role-importer{--stroke:#1971c2;--fill:#a5d8ff}
+.role-maintenance{--stroke:#1971c2;--fill:#a5d8ff}
+.role-inventory{--stroke:#1971c2;--fill:#a5d8ff}
+.role-advisor{--stroke:#1971c2;--fill:#a5d8ff}
+.role-recorder{--stroke:#1971c2;--fill:#a5d8ff}
+.role-reporter{--stroke:#1971c2;--fill:#a5d8ff}
+.role-knowledge{--stroke:#748ffc;--fill:#dbe4ff}
+.role-command{--stroke:#1971c2;--fill:#a5d8ff}
+:root[data-theme=dark]{--bg:#0f1115;--fg:#e9ecef;--muted:#8b949e;--sub:#c9d1d9;--border:#3b4048;--panel:#161a20;--zone:#5c636a;--iso:#ff6b6b;--edge:#c9d1d9;--edge-ref:#8b949e;--btn:#21262d;--btn-fg:#e9ecef;--tok:#ffd43b;color-scheme:dark}
+:root[data-theme=dark] .role-orchestrator{--stroke:#b197fc;--fill:#2b1f5c}
+:root[data-theme=dark] .role-gate{--stroke:#ffa94d;--fill:#5c2f0c}
+:root[data-theme=dark] .role-generator{--stroke:#74c0fc;--fill:#12385c}
+:root[data-theme=dark] .role-agent{--stroke:#66d9e8;--fill:#0b3f47}
+:root[data-theme=dark] .role-mcp{--stroke:#8ce99a;--fill:#1b4d2a}
+:root[data-theme=dark] .role-script{--stroke:#e599f7;--fill:#4a1a5c}
+:root[data-theme=dark] .role-data{--stroke:#ced4da;--fill:#2b2f33}
+:root[data-theme=dark] .role-user{--stroke:#ced4da;--fill:#33373b}
+:root[data-theme=dark] .role-hook{--stroke:#ff8787;--fill:#5c1a1a}
+:root[data-theme=dark] .role-collector{--stroke:#74c0fc;--fill:#12385c}
+:root[data-theme=dark] .role-analyzer{--stroke:#74c0fc;--fill:#12385c}
+:root[data-theme=dark] .role-importer{--stroke:#74c0fc;--fill:#12385c}
+:root[data-theme=dark] .role-maintenance{--stroke:#74c0fc;--fill:#12385c}
+:root[data-theme=dark] .role-inventory{--stroke:#74c0fc;--fill:#12385c}
+:root[data-theme=dark] .role-advisor{--stroke:#74c0fc;--fill:#12385c}
+:root[data-theme=dark] .role-recorder{--stroke:#74c0fc;--fill:#12385c}
+:root[data-theme=dark] .role-reporter{--stroke:#74c0fc;--fill:#12385c}
+:root[data-theme=dark] .role-knowledge{--stroke:#91a7ff;--fill:#243063}
+:root[data-theme=dark] .role-command{--stroke:#74c0fc;--fill:#12385c}
+@media (prefers-color-scheme:dark){
+:root:not([data-theme=light]){--bg:#0f1115;--fg:#e9ecef;--muted:#8b949e;--sub:#c9d1d9;--border:#3b4048;--panel:#161a20;--zone:#5c636a;--iso:#ff6b6b;--edge:#c9d1d9;--edge-ref:#8b949e;--btn:#21262d;--btn-fg:#e9ecef;--tok:#ffd43b;color-scheme:dark}
+:root:not([data-theme=light]) .role-orchestrator{--stroke:#b197fc;--fill:#2b1f5c}
+:root:not([data-theme=light]) .role-gate{--stroke:#ffa94d;--fill:#5c2f0c}
+:root:not([data-theme=light]) .role-generator{--stroke:#74c0fc;--fill:#12385c}
+:root:not([data-theme=light]) .role-agent{--stroke:#66d9e8;--fill:#0b3f47}
+:root:not([data-theme=light]) .role-mcp{--stroke:#8ce99a;--fill:#1b4d2a}
+:root:not([data-theme=light]) .role-script{--stroke:#e599f7;--fill:#4a1a5c}
+:root:not([data-theme=light]) .role-data{--stroke:#ced4da;--fill:#2b2f33}
+:root:not([data-theme=light]) .role-user{--stroke:#ced4da;--fill:#33373b}
+:root:not([data-theme=light]) .role-hook{--stroke:#ff8787;--fill:#5c1a1a}
+:root:not([data-theme=light]) .role-collector{--stroke:#74c0fc;--fill:#12385c}
+:root:not([data-theme=light]) .role-analyzer{--stroke:#74c0fc;--fill:#12385c}
+:root:not([data-theme=light]) .role-importer{--stroke:#74c0fc;--fill:#12385c}
+:root:not([data-theme=light]) .role-maintenance{--stroke:#74c0fc;--fill:#12385c}
+:root:not([data-theme=light]) .role-inventory{--stroke:#74c0fc;--fill:#12385c}
+:root:not([data-theme=light]) .role-advisor{--stroke:#74c0fc;--fill:#12385c}
+:root:not([data-theme=light]) .role-recorder{--stroke:#74c0fc;--fill:#12385c}
+:root:not([data-theme=light]) .role-reporter{--stroke:#74c0fc;--fill:#12385c}
+:root:not([data-theme=light]) .role-knowledge{--stroke:#91a7ff;--fill:#243063}
+:root:not([data-theme=light]) .role-command{--stroke:#74c0fc;--fill:#12385c}
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;padding:24px 16px 48px;font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,"Hiragino Sans","Noto Sans CJK JP","Yu Gothic UI",sans-serif;color:var(--fg);background:var(--bg)}
+code,.mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-start;gap:12px 24px}
+header.top>div{flex:1 1 320px;min-width:0}
+h1{font-size:22px;margin:0 0 4px}
+.meta{color:var(--muted);font-size:12px;margin:2px 0 0}
+.overview{color:var(--sub);font-size:13px;margin:6px 0 0;max-width:80ch}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;list-style:none;padding:0;margin:14px 0 0;font-size:12px;color:var(--sub)}
+.legend li{display:flex;align-items:center;gap:6px}
+.sw{width:22px;height:14px;border-radius:3px;border:1.4px solid var(--stroke);background:var(--fill)}
+.legend .suffix{color:var(--muted)}
+button{font:inherit;font-size:12px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--btn);color:var(--btn-fg);cursor:pointer}
+section{margin-top:32px}
+h2{font-size:15px;color:var(--sub);margin:0 0 10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+h2 .tools{margin-left:auto;display:flex;gap:6px}
+h2.draft{color:var(--muted);font-weight:normal}
+.hint{color:var(--muted);font-size:11.5px;font-weight:normal}
+.viewport{border:1px solid var(--border);border-radius:8px;background:var(--panel);overflow:hidden;touch-action:none;cursor:grab}
+.viewport.dragging{cursor:grabbing}
+svg[data-flow]{display:block;width:100%;height:auto;max-height:82vh;user-select:none}
+svg text{font-family:inherit;fill:var(--fg)}
+.lane-label{fill:var(--muted);font-size:12.5px}
+.lane-iso{fill:none;stroke:var(--iso);stroke-width:1.5;stroke-dasharray:6 4}
+.lane-iso-label{fill:var(--iso);font-size:12.5px}
+.zone{fill:none;stroke:var(--zone);stroke-width:1;stroke-dasharray:5 4}
+.zone-label{fill:var(--muted);font-size:12.5px}
+.node{cursor:pointer}
+.node .shape{fill:var(--fill);stroke:var(--stroke);stroke-width:2}
+.node.kind-data .shape{stroke-dasharray:6 4}
+.node text{font-size:12.5px;text-anchor:middle}
+.edge{fill:none;stroke:var(--edge);stroke-width:1.4}
+.edge.ref{stroke:var(--edge-ref);stroke-dasharray:6 4}
+.edge-label{font-size:10.5px;fill:var(--sub)}
+.edge-label{paint-order:stroke;stroke:var(--panel);stroke-width:3px;stroke-linejoin:round}
+#m-flow path{fill:var(--edge)}#m-ref path{fill:var(--edge-ref)}
+svg.focus .node:not(.hi),svg.focus .edge:not(.hi),svg.focus .edge-label:not(.hi){opacity:.18}
+.node.hi .shape{stroke-width:3}
+.panels{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.panel{border:1px dashed var(--border);border-radius:8px;padding:12px;background:var(--panel);min-width:0}
+.panel h3{font-size:14px;margin:0 0 10px;color:var(--sub);font-weight:600}
+.chip{border:1.4px solid var(--stroke);background:var(--fill);color:var(--fg);border-radius:6px;padding:6px 10px;font-size:12px;line-height:1.4;overflow-wrap:anywhere}
+.panel .chip+.chip{margin-top:8px}
+.panel .empty{color:var(--muted);font-size:12px;margin:0}
+.trace{list-style:none;padding:0;margin:0;max-width:720px}
+.trace li{position:relative}
+.trace li+li{margin-top:18px}
+.trace li+li::before{content:"";position:absolute;left:24px;top:-18px;height:18px;border-left:1.2px solid var(--edge-ref)}
+.tokens{display:none}
+svg.motion .tokens{display:block}
+.token{fill:var(--tok);opacity:.9}
+.node.off-path .shape{stroke-dasharray:6 4;opacity:.35}
+.node.off-path text{opacity:.45}
+.edge.off-path{stroke-dasharray:6 4;opacity:.35}
+.edge-label.off-path{opacity:.45}
+.edge.on-path{stroke-width:2.2}
+.node.on-path .shape{stroke-width:2.4}
+.token.off{display:none}
+.scenarios{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 10px}
+.scn-title{font-size:12px;color:var(--sub);margin-right:4px}
+.scn-summary{margin:0 0 10px;padding:8px 12px;border-left:3px solid var(--tok);background:var(--panel);color:var(--sub);font-size:13px;max-width:80ch}
+.scenario{margin-top:18px;transition:opacity .2s}
+.scenario h3{font-size:14px;margin:0 0 6px;color:var(--sub)}
+.scenario .summary{margin:0 0 10px;color:var(--muted);font-size:12.5px;max-width:80ch}
+.scenario:not(.active){opacity:.55}
+button[aria-pressed=true]{background:var(--tok);color:#1e1e1e;border-color:var(--tok)}
+h2 .tools{align-items:center;flex-wrap:wrap}
+footer{margin-top:40px;color:var(--muted);font-size:11.5px}
+@media (max-width:700px){svg[data-flow]{height:60vh}}
+</style>
+</head>
+<body>
+<header class="top"><div><h1>meiseki プラグイン構成図</h1>
+<p class="meta">形式: Claude Code プラグイン形式</p>
+<p class="overview">概要: AI が書いた日本語文書から、二重否定や LLM 定型句など読解負荷の高い構文を削ぎ落とし、一読で意味が取れる本文へ書き直すプラグイン。</p>
+</div><button id="theme" type="button">テーマ切替</button></header>
+<ul class="legend"><li>凡例:</li><li class="role-orchestrator"><span class="sw"></span>オーケストレータ</li><li class="role-generator"><span class="sw"></span>スキル</li><li class="role-knowledge"><span class="sw"></span>参照知識スキル</li><li class="role-gate"><span class="sw"></span>ゲート/監査</li><li class="role-agent"><span class="sw"></span>エージェント</li><li class="role-mcp"><span class="sw"></span>MCPサーバー</li><li class="role-script"><span class="sw"></span>スクリプト</li><li class="role-data"><span class="sw"></span>データ/成果物</li><li class="suffix">破線=参照・データ ／ 赤破線枠=隔離境界 ／「不可視」=この環境でソース未マウントのため確認不可（0ではない）</li></ul>
+<section id="flow"><h2>実行フロー（Skills レイヤー）<span class="hint">ノードをクリックで関連を強調 ／ ドラッグで移動 ／ ホイールで拡大縮小</span><span class="tools"><button id="motion" type="button" aria-pressed="false">モーション</button><button id="reset" type="button">表示をリセット</button></span></h2><div class="viewport"><svg data-flow xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1037 495" preserveAspectRatio="xMinYMin meet" role="img" aria-label="実行フロー（Skills レイヤー）"><defs><marker id="m-flow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker><marker id="m-ref" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker></defs><g id="scene"><text class="lane-label" x="14" y="24">スキル起動（手動の明晰化）</text><text class="lane-label" x="14" y="312">フック自動検査（PostToolUse）</text><rect class="zone" x="30" y="68" width="221" height="172"/><text class="zone-label" x="40" y="86">入力</text><rect class="zone" x="322" y="34" width="309" height="206"/><text class="zone-label" x="332" y="52">明晰化（A→H リライト）</text><rect class="zone" x="702" y="59.5" width="305" height="180.5"/><text class="zone-label" x="712" y="77.5">出力</text><path id="fe-0" class="edge on-path" data-from="draft-md" data-to="meiseki" data-paths="default" d="M229 144 L344 144" marker-end="url(#m-flow)"/><path id="fe-1" class="edge on-path" data-from="meiseki" data-to="clear-md" data-paths="default" d="M609 144 L724 144" marker-end="url(#m-flow)"/><path id="fe-2" class="edge off-path" data-from="edit-event" data-to="meiseki-check.sh" data-paths="" d="M245 406.5 L360 406.5" marker-end="url(#m-flow)"/><path id="fe-3" class="edge off-path" data-from="meiseki-check.sh" data-to="block-notice" data-paths="" d="M566 406.5 L681 406.5" marker-end="url(#m-flow)"/><path id="fe-4" class="edge ref off-path" data-from="block-notice" data-to="meiseki" data-paths="" d="M806.5 443 L806.5 27 L476.5 27 L476.5 82" marker-end="url(#m-ref)"/><g class="node role-data kind-data on-path" data-ref="draft-md" data-paths="default"><rect class="shape" x="52" y="116" width="177" height="56" rx="8"/><text x="140.5" y="135.56" dominant-baseline="middle"><tspan x="140.5">draft-md</tspan><tspan x="140.5" dy="16.88">対象の日本語 Markdown</tspan></text></g><g class="node role-generator kind-generator on-path" data-ref="meiseki" data-paths="default"><rect class="shape" x="344" y="82" width="265" height="124" rx="8"/><text x="476.5" y="101.81" dominant-baseline="middle"><tspan x="476.5">meiseki</tspan><tspan x="476.5" dy="16.88">説明的な日本語本文を textlint（決</tspan><tspan x="476.5" dy="16.88">定論層）と patterns.md の A→H パ</tspan><tspan x="476.5" dy="16.88">ターン（LLM 層）の二段構えでリライト</tspan><tspan x="476.5" dy="16.88">し、声や個性を足さず明晰さだけを目的</tspan><tspan x="476.5" dy="16.88">に整えるスキル。</tspan></text></g><g class="node role-data kind-artifact on-path" data-ref="clear-md" data-paths="default"><rect class="shape" x="724" y="107.5" width="261" height="73" rx="8"/><text x="854.5" y="127.13" dominant-baseline="middle"><tspan x="854.5">clear-md</tspan><tspan x="854.5" dy="16.88">明晰化済み本文（after &lt; before を</tspan><tspan x="854.5" dy="16.88">検算済み）</tspan></text></g><g class="node role-data kind-data off-path" data-ref="edit-event" data-paths=""><rect class="shape" x="52" y="378.5" width="193" height="56" rx="8"/><text x="148.5" y="398.06" dominant-baseline="middle"><tspan x="148.5">edit-event</tspan><tspan x="148.5" dy="16.88">Write / Edit された md</tspan></text></g><g class="node role-script kind-script off-path" data-ref="meiseki-check.sh" data-paths=""><rect class="shape" x="360" y="370" width="206" height="73" rx="8"/><text x="463" y="389.63" dominant-baseline="middle"><tspan x="463">meiseki-check.sh</tspan><tspan x="463" dy="16.88">meiseki-lint-core.sh で</tspan><tspan x="463" dy="16.88">textlint 検査</tspan></text></g><g class="node role-data kind-artifact off-path" data-ref="block-notice" data-paths=""><rect class="shape" x="681" y="370" width="251" height="73" rx="8"/><text x="806.5" y="389.63" dominant-baseline="middle"><tspan x="806.5">block-notice</tspan><tspan x="806.5" dy="16.88">decision:block（同一内容 2 回で</tspan><tspan x="806.5" dy="16.88">advisory 降格）</tspan></text></g><text class="edge-label off-path" data-from="block-notice" data-to="meiseki" data-paths="" x="812.5" y="227">スキル適用を要求</text><g class="tokens"><circle class="token" r="3.5" data-paths="default"><animateMotion dur="1.5s" begin="0s" repeatCount="indefinite"><mpath href="#fe-0" xlink:href="#fe-0"/></animateMotion></circle><circle class="token" r="3.5" data-paths="default"><animateMotion dur="1.5s" begin="0.4s" repeatCount="indefinite"><mpath href="#fe-1" xlink:href="#fe-1"/></animateMotion></circle></g></g></svg></div></section>
+<section id="inventory"><h2>コンポーネント棚卸し（MECE）</h2><div class="panels">
+<article class="panel" data-panel="skills"><h3>Skills（1）</h3>
+<div class="chip role-generator">meiseki<br>〔generator〕</div>
+</article>
+<article class="panel" data-panel="agents"><h3>Agents（走査済み・なし）</h3>
+<p class="empty">ディレクトリ/設定を走査した上で存在しない</p>
+</article>
+<article class="panel" data-panel="hooks"><h3>Hooks（1）</h3>
+<div class="chip role-hook">PostToolUse（Write|Edit） → command<br>&quot;${CLAUDE_PLUGIN_ROOT}&quot;/scripts/meiseki-check.sh</div>
+</article>
+<article class="panel" data-panel="commands"><h3>Commands（走査済み・なし）</h3>
+<p class="empty">ディレクトリ/設定を走査した上で存在しない</p>
+</article>
+<article class="panel" data-panel="mcp_servers"><h3>MCP servers（走査済み・なし）</h3>
+<p class="empty">ディレクトリ/設定を走査した上で存在しない</p>
+</article>
+<article class="panel" data-panel="lsp_servers"><h3>LSP servers（走査済み・なし）</h3>
+<p class="empty">ディレクトリ/設定を走査した上で存在しない</p>
+</article>
+<article class="panel" data-panel="monitors"><h3>Monitors（走査済み・なし）</h3>
+<p class="empty">ディレクトリ/設定を走査した上で存在しない</p>
+</article>
+<article class="panel" data-panel="scripts"><h3>Scripts（4）</h3>
+<div class="chip role-script">scripts/codex-hook.sh<br>Codex フックアダプタ（apply_patch エンベロープからパスを抽出しコアへ橋渡し）</div>
+<div class="chip role-script">scripts/meiseki-check.sh<br>Claude Code フックアダプタ（block 判定・再実行ガード・文書系 md 以外の除外）</div>
+<div class="chip role-script">scripts/meiseki-lint-core.sh<br>ホスト非依存コア（対象判定→マスキング→textlint→閾値判定）</div>
+<div class="chip role-script">scripts/test-meiseki-check.sh<br>prh 補完辞書とフック挙動のテスト（npm run test:hook）</div>
+</article>
+<article class="panel" data-panel="data_references"><h3>Data / References（5）</h3>
+<div class="chip role-data">.agents/skills/meiseki/references/patterns.md〔お作法〕<br>A→H の優先度付きリライトパターン集</div>
+<div class="chip role-data">.agents/skills/meiseki/references/prh-llm-phrases.yml〔台帳〕<br>LLM 定型句と分離型二重否定の補完辞書</div>
+<div class="chip role-data">.agents/skills/meiseki/references/textlint.config.json〔設定〕</div>
+<div class="chip role-data">hooks/codex-hooks.json〔設定〕<br>Codex CLI 用フック定義</div>
+<div class="chip role-data">.codex-plugin/plugin.json〔設定〕<br>Codex CLI 対応マニフェスト</div>
+</article>
+</div></section>
+<section id="trace"><h2>呼び出し例（代表トレース）</h2>
+<ol class="trace">
+<li data-step="1" data-node="draft-md"><div class="chip role-user">1. 〔user〕 「この README をわかりやすく直して」-&gt; meiseki 発動</div></li>
+<li data-step="2" data-node="meiseki"><div class="chip role-generator">2. 〔meiseki〕 全文を読み、否定・条件・係り受けの論理構造を確定させる（Step 1）</div></li>
+<li data-step="3" data-node="meiseki"><div class="chip role-script">3. 〔textlint (npx)〕 JSON 出力から ruleId と行番号を取得し高負荷箇所を特定（Step 2）</div></li>
+<li data-step="4" data-node="meiseki"><div class="chip role-generator">4. 〔meiseki〕 patterns.md の A→H 順にリライト。二重否定の畳み込みが最優先（Step 4）</div></li>
+<li data-step="5" data-node="meiseki"><div class="chip role-generator">5. 〔meiseki〕 意味の検算: 真偽の反転・条件・数値の一致を原文と突き合わせる（Step 5）</div></li>
+<li data-step="6" data-node="meiseki"><div class="chip role-script">6. 〔textlint (npx)〕 再実行で after &lt; before を検算。二重否定は原則 0 件（Step 6）</div></li>
+<li data-step="7" data-node="clear-md"><div class="chip role-generator">7. 〔meiseki〕 やりすぎチェックを通し、リライト後の本文だけを返す（Step 7-8）</div></li>
+</ol>
+</section>
+<footer>cutaway が structure YAML（plugin-structure/v1.1、meiseki 0.5.0）から決定論的に生成。図は派生物であり、構造の変更は YAML の差分で扱う。</footer>
+<script>(function(){
+var root=document.documentElement,KEY="cutaway-theme";
+var tb=document.getElementById("theme");
+if(tb)tb.addEventListener("click",function(){
+var cur=root.getAttribute("data-theme")||(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");
+var next=cur==="dark"?"light":"dark";root.setAttribute("data-theme",next);
+try{localStorage.setItem(KEY,next)}catch(e){}});
+var svg=document.querySelector("svg[data-flow]");if(!svg)return;
+var scene=svg.querySelector("#scene"),vp=svg.parentNode,s=1,tx=0,ty=0;
+var reduced=!!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);
+function apply(){scene.setAttribute("transform","translate("+tx+" "+ty+") scale("+s+")")}
+function pt(e){var p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(svg.getScreenCTM().inverse())}
+svg.addEventListener("wheel",function(e){e.preventDefault();var p=pt(e),k=e.deltaY<0?1.1:1/1.1,ns=Math.min(8,Math.max(0.2,s*k));
+tx=p.x-(p.x-tx)*ns/s;ty=p.y-(p.y-ty)*ns/s;s=ns;apply()},{passive:false});
+var drag=null,moved=false;
+svg.addEventListener("pointerdown",function(e){if(e.button!==0)return;var p=pt(e);drag={x:p.x,y:p.y};moved=false;vp.classList.add("dragging")});
+svg.addEventListener("pointermove",function(e){if(!drag)return;var p=pt(e),dx=p.x-drag.x,dy=p.y-drag.y;
+if(!moved&&Math.abs(dx)+Math.abs(dy)>2){moved=true;try{svg.setPointerCapture(e.pointerId)}catch(err){}}tx+=dx;ty+=dy;drag={x:p.x,y:p.y};apply()});
+function end(){drag=null;vp.classList.remove("dragging")}
+svg.addEventListener("pointerup",end);svg.addEventListener("pointercancel",end);
+var nodes=[].slice.call(svg.querySelectorAll(".node")),links=[].slice.call(svg.querySelectorAll(".edge,.edge-label"));
+function clear(){svg.classList.remove("focus");nodes.concat(links).forEach(function(el){el.classList.remove("hi")})}
+function focusNode(id){var keep={};keep[id]=1;clear();svg.classList.add("focus");
+links.forEach(function(el){var f=el.getAttribute("data-from"),t=el.getAttribute("data-to");if(f===id||t===id){el.classList.add("hi");keep[f]=1;keep[t]=1}});
+nodes.forEach(function(n){if(keep[n.getAttribute("data-ref")])n.classList.add("hi")})}
+svg.addEventListener("click",function(e){
+if(moved){moved=false;return}
+var g=e.target.closest?e.target.closest(".node"):null;
+if(!g){clear();return}
+focusNode(g.getAttribute("data-ref"))});
+var rb=document.getElementById("reset");if(rb)rb.addEventListener("click",function(){s=1;tx=0;ty=0;apply();clear()});
+var mb=document.getElementById("motion");
+function setMotion(on){svg.classList.toggle("motion",on);if(mb)mb.setAttribute("aria-pressed",on?"true":"false")}
+setMotion(!reduced);
+if(mb)mb.addEventListener("click",function(){setMotion(!svg.classList.contains("motion"))});
+var scnBtns=[].slice.call(document.querySelectorAll(".scenarios .scn"));
+function setScenario(id,empty){
+scnBtns.forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-scn")===id?"true":"false")});
+[].slice.call(document.querySelectorAll(".scn-summary")).forEach(function(p){p.hidden=p.getAttribute("data-scn")!==id});
+[].slice.call(document.querySelectorAll(".scenario")).forEach(function(sc){sc.classList.toggle("active",sc.getAttribute("data-scn")===id)});
+[].slice.call(svg.querySelectorAll("[data-paths]")).forEach(function(el){
+var on=(" "+el.getAttribute("data-paths")+" ").indexOf(" "+id+" ")>=0;
+el.classList.toggle("on-path",!empty&&on);el.classList.toggle("off-path",!empty&&!on);
+if(el.classList.contains("token"))el.classList.toggle("off",!empty&&!on)});
+clear()}
+scnBtns.forEach(function(b){b.addEventListener("click",function(){setScenario(b.getAttribute("data-scn"),b.getAttribute("data-empty")==="1")})});
+})();</script>
+</body>
+</html>

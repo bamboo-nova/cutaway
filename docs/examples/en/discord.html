@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>discord plugin structure map</title>
+<script>(function(){try{var t=localStorage.getItem("cutaway-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}})();</script>
+<style>
+:root{--bg:#ffffff;--fg:#1e1e1e;--muted:#868e96;--sub:#343a40;--border:#adb5bd;--panel:#ffffff;--zone:#adb5bd;--iso:#e03131;--edge:#343a40;--edge-ref:#868e96;--btn:#f1f3f5;--btn-fg:#343a40;--tok:#f08c00;color-scheme:light}
+.role-orchestrator{--stroke:#6741d9;--fill:#d0bfff}
+.role-gate{--stroke:#e8590c;--fill:#ffd8a8}
+.role-generator{--stroke:#1971c2;--fill:#a5d8ff}
+.role-agent{--stroke:#0c8599;--fill:#99e9f2}
+.role-mcp{--stroke:#2f9e44;--fill:#b2f2bb}
+.role-script{--stroke:#9c36b5;--fill:#eebefa}
+.role-data{--stroke:#495057;--fill:#f1f3f5}
+.role-user{--stroke:#495057;--fill:#e9ecef}
+.role-hook{--stroke:#c92a2a;--fill:#ffc9c9}
+.role-collector{--stroke:#1971c2;--fill:#a5d8ff}
+.role-analyzer{--stroke:#1971c2;--fill:#a5d8ff}
+.role-importer{--stroke:#1971c2;--fill:#a5d8ff}
+.role-maintenance{--stroke:#1971c2;--fill:#a5d8ff}
+.role-inventory{--stroke:#1971c2;--fill:#a5d8ff}
+.role-advisor{--stroke:#1971c2;--fill:#a5d8ff}
+.role-recorder{--stroke:#1971c2;--fill:#a5d8ff}
+.role-reporter{--stroke:#1971c2;--fill:#a5d8ff}
+.role-knowledge{--stroke:#748ffc;--fill:#dbe4ff}
+.role-command{--stroke:#1971c2;--fill:#a5d8ff}
+:root[data-theme=dark]{--bg:#0f1115;--fg:#e9ecef;--muted:#8b949e;--sub:#c9d1d9;--border:#3b4048;--panel:#161a20;--zone:#5c636a;--iso:#ff6b6b;--edge:#c9d1d9;--edge-ref:#8b949e;--btn:#21262d;--btn-fg:#e9ecef;--tok:#ffd43b;color-scheme:dark}
+:root[data-theme=dark] .role-orchestrator{--stroke:#b197fc;--fill:#2b1f5c}
+:root[data-theme=dark] .role-gate{--stroke:#ffa94d;--fill:#5c2f0c}
+:root[data-theme=dark] .role-generator{--stroke:#74c0fc;--fill:#12385c}
+:root[data-theme=dark] .role-agent{--stroke:#66d9e8;--fill:#0b3f47}
+:root[data-theme=dark] .role-mcp{--stroke:#8ce99a;--fill:#1b4d2a}
+:root[data-theme=dark] .role-script{--stroke:#e599f7;--fill:#4a1a5c}
+:root[data-theme=dark] .role-data{--stroke:#ced4da;--fill:#2b2f33}
+:root[data-theme=dark] .role-user{--stroke:#ced4da;--fill:#33373b}
+:root[data-theme=dark] .role-hook{--stroke:#ff8787;--fill:#5c1a1a}
+:root[data-theme=dark] .role-collector{--stroke:#74c0fc;--fill:#12385c}
+:root[data-theme=dark] .role-analyzer{--stroke:#74c0fc;--fill:#12385c}
+:root[data-theme=dark] .role-importer{--stroke:#74c0fc;--fill:#12385c}
+:root[data-theme=dark] .role-maintenance{--stroke:#74c0fc;--fill:#12385c}
+:root[data-theme=dark] .role-inventory{--stroke:#74c0fc;--fill:#12385c}
+:root[data-theme=dark] .role-advisor{--stroke:#74c0fc;--fill:#12385c}
+:root[data-theme=dark] .role-recorder{--stroke:#74c0fc;--fill:#12385c}
+:root[data-theme=dark] .role-reporter{--stroke:#74c0fc;--fill:#12385c}
+:root[data-theme=dark] .role-knowledge{--stroke:#91a7ff;--fill:#243063}
+:root[data-theme=dark] .role-command{--stroke:#74c0fc;--fill:#12385c}
+@media (prefers-color-scheme:dark){
+:root:not([data-theme=light]){--bg:#0f1115;--fg:#e9ecef;--muted:#8b949e;--sub:#c9d1d9;--border:#3b4048;--panel:#161a20;--zone:#5c636a;--iso:#ff6b6b;--edge:#c9d1d9;--edge-ref:#8b949e;--btn:#21262d;--btn-fg:#e9ecef;--tok:#ffd43b;color-scheme:dark}
+:root:not([data-theme=light]) .role-orchestrator{--stroke:#b197fc;--fill:#2b1f5c}
+:root:not([data-theme=light]) .role-gate{--stroke:#ffa94d;--fill:#5c2f0c}
+:root:not([data-theme=light]) .role-generator{--stroke:#74c0fc;--fill:#12385c}
+:root:not([data-theme=light]) .role-agent{--stroke:#66d9e8;--fill:#0b3f47}
+:root:not([data-theme=light]) .role-mcp{--stroke:#8ce99a;--fill:#1b4d2a}
+:root:not([data-theme=light]) .role-script{--stroke:#e599f7;--fill:#4a1a5c}
+:root:not([data-theme=light]) .role-data{--stroke:#ced4da;--fill:#2b2f33}
+:root:not([data-theme=light]) .role-user{--stroke:#ced4da;--fill:#33373b}
+:root:not([data-theme=light]) .role-hook{--stroke:#ff8787;--fill:#5c1a1a}
+:root:not([data-theme=light]) .role-collector{--stroke:#74c0fc;--fill:#12385c}
+:root:not([data-theme=light]) .role-analyzer{--stroke:#74c0fc;--fill:#12385c}
+:root:not([data-theme=light]) .role-importer{--stroke:#74c0fc;--fill:#12385c}
+:root:not([data-theme=light]) .role-maintenance{--stroke:#74c0fc;--fill:#12385c}
+:root:not([data-theme=light]) .role-inventory{--stroke:#74c0fc;--fill:#12385c}
+:root:not([data-theme=light]) .role-advisor{--stroke:#74c0fc;--fill:#12385c}
+:root:not([data-theme=light]) .role-recorder{--stroke:#74c0fc;--fill:#12385c}
+:root:not([data-theme=light]) .role-reporter{--stroke:#74c0fc;--fill:#12385c}
+:root:not([data-theme=light]) .role-knowledge{--stroke:#91a7ff;--fill:#243063}
+:root:not([data-theme=light]) .role-command{--stroke:#74c0fc;--fill:#12385c}
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;padding:24px 16px 48px;font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,"Hiragino Sans","Noto Sans CJK JP","Yu Gothic UI",sans-serif;color:var(--fg);background:var(--bg)}
+code,.mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-start;gap:12px 24px}
+header.top>div{flex:1 1 320px;min-width:0}
+h1{font-size:22px;margin:0 0 4px}
+.meta{color:var(--muted);font-size:12px;margin:2px 0 0}
+.overview{color:var(--sub);font-size:13px;margin:6px 0 0;max-width:80ch}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;list-style:none;padding:0;margin:14px 0 0;font-size:12px;color:var(--sub)}
+.legend li{display:flex;align-items:center;gap:6px}
+.sw{width:22px;height:14px;border-radius:3px;border:1.4px solid var(--stroke);background:var(--fill)}
+.legend .suffix{color:var(--muted)}
+button{font:inherit;font-size:12px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--btn);color:var(--btn-fg);cursor:pointer}
+section{margin-top:32px}
+h2{font-size:15px;color:var(--sub);margin:0 0 10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+h2 .tools{margin-left:auto;display:flex;gap:6px}
+h2.draft{color:var(--muted);font-weight:normal}
+.hint{color:var(--muted);font-size:11.5px;font-weight:normal}
+.viewport{border:1px solid var(--border);border-radius:8px;background:var(--panel);overflow:hidden;touch-action:none;cursor:grab}
+.viewport.dragging{cursor:grabbing}
+svg[data-flow]{display:block;width:100%;height:auto;max-height:82vh;user-select:none}
+svg text{font-family:inherit;fill:var(--fg)}
+.lane-label{fill:var(--muted);font-size:12.5px}
+.lane-iso{fill:none;stroke:var(--iso);stroke-width:1.5;stroke-dasharray:6 4}
+.lane-iso-label{fill:var(--iso);font-size:12.5px}
+.zone{fill:none;stroke:var(--zone);stroke-width:1;stroke-dasharray:5 4}
+.zone-label{fill:var(--muted);font-size:12.5px}
+.node{cursor:pointer}
+.node .shape{fill:var(--fill);stroke:var(--stroke);stroke-width:2}
+.node.kind-data .shape{stroke-dasharray:6 4}
+.node text{font-size:12.5px;text-anchor:middle}
+.edge{fill:none;stroke:var(--edge);stroke-width:1.4}
+.edge.ref{stroke:var(--edge-ref);stroke-dasharray:6 4}
+.edge-label{font-size:10.5px;fill:var(--sub)}
+.edge-label{paint-order:stroke;stroke:var(--panel);stroke-width:3px;stroke-linejoin:round}
+#m-flow path{fill:var(--edge)}#m-ref path{fill:var(--edge-ref)}
+svg.focus .node:not(.hi),svg.focus .edge:not(.hi),svg.focus .edge-label:not(.hi){opacity:.18}
+.node.hi .shape{stroke-width:3}
+.panels{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.panel{border:1px dashed var(--border);border-radius:8px;padding:12px;background:var(--panel);min-width:0}
+.panel h3{font-size:14px;margin:0 0 10px;color:var(--sub);font-weight:600}
+.chip{border:1.4px solid var(--stroke);background:var(--fill);color:var(--fg);border-radius:6px;padding:6px 10px;font-size:12px;line-height:1.4;overflow-wrap:anywhere}
+.panel .chip+.chip{margin-top:8px}
+.panel .empty{color:var(--muted);font-size:12px;margin:0}
+.trace{list-style:none;padding:0;margin:0;max-width:720px}
+.trace li{position:relative}
+.trace li+li{margin-top:18px}
+.trace li+li::before{content:"";position:absolute;left:24px;top:-18px;height:18px;border-left:1.2px solid var(--edge-ref)}
+.tokens{display:none}
+svg.motion .tokens{display:block}
+.token{fill:var(--tok);opacity:.9}
+.node.off-path .shape{stroke-dasharray:6 4;opacity:.35}
+.node.off-path text{opacity:.45}
+.edge.off-path{stroke-dasharray:6 4;opacity:.35}
+.edge-label.off-path{opacity:.45}
+.edge.on-path{stroke-width:2.2}
+.node.on-path .shape{stroke-width:2.4}
+.token.off{display:none}
+.scenarios{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 10px}
+.scn-title{font-size:12px;color:var(--sub);margin-right:4px}
+.scn-summary{margin:0 0 10px;padding:8px 12px;border-left:3px solid var(--tok);background:var(--panel);color:var(--sub);font-size:13px;max-width:80ch}
+.scenario{margin-top:18px;transition:opacity .2s}
+.scenario h3{font-size:14px;margin:0 0 6px;color:var(--sub)}
+.scenario .summary{margin:0 0 10px;color:var(--muted);font-size:12.5px;max-width:80ch}
+.scenario:not(.active){opacity:.55}
+button[aria-pressed=true]{background:var(--tok);color:#1e1e1e;border-color:var(--tok)}
+h2 .tools{align-items:center;flex-wrap:wrap}
+footer{margin-top:40px;color:var(--muted);font-size:11.5px}
+@media (max-width:700px){svg[data-flow]{height:60vh}}
+</style>
+</head>
+<body>
+<header class="top"><div><h1>discord plugin structure map</h1>
+<p class="meta">Format: Claude Code plugin format</p>
+<p class="overview">Overview: MCP channel plugin bridging Claude Code and Discord, with built-in access control via pairing and allowlists.</p>
+</div><button id="theme" type="button">Toggle theme</button></header>
+<ul class="legend"><li>Legend:</li><li class="role-orchestrator"><span class="sw"></span>orchestrator</li><li class="role-generator"><span class="sw"></span>skill</li><li class="role-knowledge"><span class="sw"></span>reference-knowledge skill</li><li class="role-gate"><span class="sw"></span>gate / audit</li><li class="role-agent"><span class="sw"></span>agent</li><li class="role-mcp"><span class="sw"></span>MCP server</li><li class="role-script"><span class="sw"></span>script</li><li class="role-data"><span class="sw"></span>data / artifact</li><li class="suffix">dashed = reference/data | red dashed frame = isolation boundary | &quot;not visible&quot; = source not mounted in this environment, cannot verify (NOT zero)</li></ul>
+<section id="flow"><h2>Execution flow (skills layer)<span class="hint">click a node to highlight its links / drag to pan / wheel to zoom</span><span class="tools"><button id="motion" type="button" aria-pressed="false">Motion</button><button id="reset" type="button">Reset view</button></span></h2><div class="viewport"><svg data-flow xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1369 617" preserveAspectRatio="xMinYMin meet" role="img" aria-label="Execution flow (skills layer)"><defs><marker id="m-flow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker><marker id="m-ref" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker></defs><g id="scene"><text class="lane-label" x="14" y="24">message path</text><text class="lane-label" x="14" y="278">setup and access management (on the user&#39;s terminal)</text><rect class="zone" x="30" y="34" width="646" height="172"/><text class="zone-label" x="40" y="52">receive and check</text><rect class="zone" x="747" y="51" width="222" height="155"/><text class="zone-label" x="757" y="69">conversation</text><rect class="zone" x="1040" y="42.5" width="299" height="163.5"/><text class="zone-label" x="1050" y="60.5">response</text><path id="fe-0" class="edge on-path" data-from="dm-in" data-to="server-ts" data-paths="default" d="M292 127 L407 127" marker-end="url(#m-flow)"/><path id="fe-1" class="edge on-path" data-from="server-ts" data-to="cc-session" data-paths="default" d="M654 127 L769 127" marker-end="url(#m-flow)"/><path id="fe-2" class="edge on-path" data-from="cc-session" data-to="dm-reply" data-paths="default" d="M947 127 L1062 127" marker-end="url(#m-flow)"/><path id="fe-3" class="edge on-path" data-from="configure" data-to="state-files" data-paths="default" d="M315 503 L720 503 L720 430.83 L800 430.83" marker-end="url(#m-flow)"/><path id="fe-4" class="edge on-path" data-from="access" data-to="state-files" data-paths="default" d="M685 406.5 L800 406.5" marker-end="url(#m-flow)"/><path id="fe-5" class="edge ref on-path" data-from="state-files" data-to="server-ts" data-paths="default" d="M920 455.17 L920 35.5 L530.5 35.5 L530.5 90.5" marker-end="url(#m-ref)"/><g class="node role-data kind-data on-path" data-ref="dm-in" data-paths="default"><rect class="shape" x="52" y="82" width="240" height="90" rx="8"/><text x="172" y="101.69" dominant-baseline="middle"><tspan x="172">dm-in</tspan><tspan x="172" dy="16.88">Discord DM (unknown senders</tspan><tspan x="172" dy="16.88">get a 6-char code and are</tspan><tspan x="172" dy="16.88">dropped)</tspan></text></g><g class="node role-script kind-script on-path" data-ref="server-ts" data-paths="default"><rect class="shape" x="407" y="90.5" width="247" height="73" rx="8"/><text x="530.5" y="110.13" dominant-baseline="middle"><tspan x="530.5">server-ts</tspan><tspan x="530.5" dy="16.88">server.ts: checks access and</tspan><tspan x="530.5" dy="16.88">forwards to Claude Code</tspan></text></g><g class="node role-data kind-data on-path" data-ref="cc-session" data-paths="default"><rect class="shape" x="769" y="99" width="178" height="56" rx="8"/><text x="858" y="118.56" dominant-baseline="middle"><tspan x="858">cc-session</tspan><tspan x="858" dy="16.88">Claude Code session</tspan></text></g><g class="node role-data kind-artifact on-path" data-ref="dm-reply" data-paths="default"><rect class="shape" x="1062" y="90.5" width="255" height="73" rx="8"/><text x="1189.5" y="110.13" dominant-baseline="middle"><tspan x="1189.5">dm-reply</tspan><tspan x="1189.5" dy="16.88">responses via reply / react /</tspan><tspan x="1189.5" dy="16.88">edit_message</tspan></text></g><g class="node role-importer kind-importer on-path" data-ref="configure" data-paths="default"><rect class="shape" x="52" y="441" width="263" height="124" rx="8"/><text x="183.5" y="460.81" dominant-baseline="middle"><tspan x="183.5">① configure</tspan><tspan x="183.5" dy="16.88">Setup skill that saves the</tspan><tspan x="183.5" dy="16.88">Discord bot token to</tspan><tspan x="183.5" dy="16.88">~/.claude/channels/discord/.en</tspan><tspan x="183.5" dy="16.88">v and walks the user through</tspan><tspan x="183.5" dy="16.88">the access policy.</tspan></text></g><g class="node role-maintenance kind-maintenance on-path" data-ref="access" data-paths="default"><rect class="shape" x="430" y="336" width="255" height="141" rx="8"/><text x="557.5" y="355.88" dominant-baseline="middle"><tspan x="557.5">② access</tspan><tspan x="557.5" dy="16.88">Access management skill for</tspan><tspan x="557.5" dy="16.88">approving pairings, editing</tspan><tspan x="557.5" dy="16.88">allowlists and changing</tspan><tspan x="557.5" dy="16.88">DM/group policy; refuses</tspan><tspan x="557.5" dy="16.88">requests arriving via the</tspan><tspan x="557.5" dy="16.88">channel as injection defense.</tspan></text></g><g class="node role-data kind-artifact on-path" data-ref="state-files" data-paths="default"><rect class="shape" x="800" y="382.17" width="240" height="73" rx="8"/><text x="920" y="401.79" dominant-baseline="middle"><tspan x="920">state-files</tspan><tspan x="920" dy="16.88">.env and access.json under</tspan><tspan x="920" dy="16.88">~/.claude/channels/discord/</tspan></text></g><text class="edge-label on-path" data-from="state-files" data-to="server-ts" data-paths="default" x="926" y="237.33">re-read at boot and on every inbound message</text><g class="tokens"><circle class="token" r="3.5" data-paths="default"><animateMotion dur="1.5s" begin="0s" repeatCount="indefinite"><mpath href="#fe-0" xlink:href="#fe-0"/></animateMotion></circle><circle class="token" r="3.5" data-paths="default"><animateMotion dur="1.5s" begin="0.4s" repeatCount="indefinite"><mpath href="#fe-1" xlink:href="#fe-1"/></animateMotion></circle><circle class="token" r="3.5" data-paths="default"><animateMotion dur="1.5s" begin="0.8s" repeatCount="indefinite"><mpath href="#fe-2" xlink:href="#fe-2"/></animateMotion></circle><circle class="token" r="3.5" data-paths="default"><animateMotion dur="4.64s" begin="1.2s" repeatCount="indefinite"><mpath href="#fe-3" xlink:href="#fe-3"/></animateMotion></circle><circle class="token" r="3.5" data-paths="default"><animateMotion dur="1.5s" begin="1.6s" repeatCount="indefinite"><mpath href="#fe-4" xlink:href="#fe-4"/></animateMotion></circle></g></g></svg></div></section>
+<section id="inventory"><h2>Component inventory (MECE)</h2><div class="panels">
+<article class="panel" data-panel="skills"><h3>Skills (2)</h3>
+<div class="chip role-importer">configure<br>[importer]</div>
+<div class="chip role-maintenance">access<br>[maintenance]</div>
+</article>
+<article class="panel" data-panel="agents"><h3>Agents (scanned: none)</h3>
+<p class="empty">directory/config scanned; nothing exists</p>
+</article>
+<article class="panel" data-panel="hooks"><h3>Hooks (scanned: none)</h3>
+<p class="empty">directory/config scanned; nothing exists</p>
+</article>
+<article class="panel" data-panel="commands"><h3>Commands (scanned: none)</h3>
+<p class="empty">directory/config scanned; nothing exists</p>
+</article>
+<article class="panel" data-panel="mcp_servers"><h3>MCP servers (1)</h3>
+<div class="chip role-mcp">discord（5 tools）<br>bun run server.ts (also formats permission requests into DMs with Allow/Deny buttons)</div>
+</article>
+<article class="panel" data-panel="lsp_servers"><h3>LSP servers (scanned: none)</h3>
+<p class="empty">directory/config scanned; nothing exists</p>
+</article>
+<article class="panel" data-panel="monitors"><h3>Monitors (scanned: none)</h3>
+<p class="empty">directory/config scanned; nothing exists</p>
+</article>
+<article class="panel" data-panel="scripts"><h3>Scripts (1)</h3>
+<div class="chip role-script">server.ts<br>The MCP server itself (900 lines): access checks and forwarding of inbound DMs, exposes the 5 tools</div>
+</article>
+<article class="panel" data-panel="data_references"><h3>Data / References (2)</h3>
+<div class="chip role-data">ACCESS.md[reference]<br>Explains access control and delivery policy (pairing is the default)</div>
+<div class="chip role-data">package.json[config]<br>bun dependency manifest (discord.js / MCP SDK)</div>
+</article>
+</div></section>
+<section id="trace"><h2>Example invocation (representative trace)</h2>
+<ol class="trace">
+<li data-step="1" data-node="configure"><div class="chip role-user">1. [user] pastes the bot token -&gt; configure saves it to .env</div></li>
+<li data-step="2" data-node="configure"><div class="chip role-generator">2. [configure] explains the default pairing policy and reach (the Public Bot setting)</div></li>
+<li data-step="3" data-node="dm-in"><div class="chip role-mcp">3. [discord] replies to an unknown sender&#39;s DM with a 6-char code and drops the message</div></li>
+<li data-step="4" data-node="access"><div class="chip role-user">4. [user] approves the sender with /discord:access pair &lt;code&gt;</div></li>
+<li data-step="5" data-node="access"><div class="chip role-generator">5. [access] adds them to allowFrom in access.json; the server re-reads per message</div></li>
+<li data-step="6" data-node="server-ts"><div class="chip role-mcp">6. [discord] forwards subsequent DMs into the Claude Code session</div></li>
+<li data-step="7" data-node="dm-reply"><div class="chip role-mcp">7. [discord] replies via the reply tool; permission checks arrive as DMs with Allow/Deny buttons</div></li>
+</ol>
+</section>
+<footer>Generated deterministically by cutaway from the structure YAML (plugin-structure/v1.1, discord 0.0.4). The figure is derived; structural changes are YAML diffs.</footer>
+<script>(function(){
+var root=document.documentElement,KEY="cutaway-theme";
+var tb=document.getElementById("theme");
+if(tb)tb.addEventListener("click",function(){
+var cur=root.getAttribute("data-theme")||(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");
+var next=cur==="dark"?"light":"dark";root.setAttribute("data-theme",next);
+try{localStorage.setItem(KEY,next)}catch(e){}});
+var svg=document.querySelector("svg[data-flow]");if(!svg)return;
+var scene=svg.querySelector("#scene"),vp=svg.parentNode,s=1,tx=0,ty=0;
+var reduced=!!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);
+function apply(){scene.setAttribute("transform","translate("+tx+" "+ty+") scale("+s+")")}
+function pt(e){var p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(svg.getScreenCTM().inverse())}
+svg.addEventListener("wheel",function(e){e.preventDefault();var p=pt(e),k=e.deltaY<0?1.1:1/1.1,ns=Math.min(8,Math.max(0.2,s*k));
+tx=p.x-(p.x-tx)*ns/s;ty=p.y-(p.y-ty)*ns/s;s=ns;apply()},{passive:false});
+var drag=null,moved=false;
+svg.addEventListener("pointerdown",function(e){if(e.button!==0)return;var p=pt(e);drag={x:p.x,y:p.y};moved=false;vp.classList.add("dragging")});
+svg.addEventListener("pointermove",function(e){if(!drag)return;var p=pt(e),dx=p.x-drag.x,dy=p.y-drag.y;
+if(!moved&&Math.abs(dx)+Math.abs(dy)>2){moved=true;try{svg.setPointerCapture(e.pointerId)}catch(err){}}tx+=dx;ty+=dy;drag={x:p.x,y:p.y};apply()});
+function end(){drag=null;vp.classList.remove("dragging")}
+svg.addEventListener("pointerup",end);svg.addEventListener("pointercancel",end);
+var nodes=[].slice.call(svg.querySelectorAll(".node")),links=[].slice.call(svg.querySelectorAll(".edge,.edge-label"));
+function clear(){svg.classList.remove("focus");nodes.concat(links).forEach(function(el){el.classList.remove("hi")})}
+function focusNode(id){var keep={};keep[id]=1;clear();svg.classList.add("focus");
+links.forEach(function(el){var f=el.getAttribute("data-from"),t=el.getAttribute("data-to");if(f===id||t===id){el.classList.add("hi");keep[f]=1;keep[t]=1}});
+nodes.forEach(function(n){if(keep[n.getAttribute("data-ref")])n.classList.add("hi")})}
+svg.addEventListener("click",function(e){
+if(moved){moved=false;return}
+var g=e.target.closest?e.target.closest(".node"):null;
+if(!g){clear();return}
+focusNode(g.getAttribute("data-ref"))});
+var rb=document.getElementById("reset");if(rb)rb.addEventListener("click",function(){s=1;tx=0;ty=0;apply();clear()});
+var mb=document.getElementById("motion");
+function setMotion(on){svg.classList.toggle("motion",on);if(mb)mb.setAttribute("aria-pressed",on?"true":"false")}
+setMotion(!reduced);
+if(mb)mb.addEventListener("click",function(){setMotion(!svg.classList.contains("motion"))});
+var scnBtns=[].slice.call(document.querySelectorAll(".scenarios .scn"));
+function setScenario(id,empty){
+scnBtns.forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-scn")===id?"true":"false")});
+[].slice.call(document.querySelectorAll(".scn-summary")).forEach(function(p){p.hidden=p.getAttribute("data-scn")!==id});
+[].slice.call(document.querySelectorAll(".scenario")).forEach(function(sc){sc.classList.toggle("active",sc.getAttribute("data-scn")===id)});
+[].slice.call(svg.querySelectorAll("[data-paths]")).forEach(function(el){
+var on=(" "+el.getAttribute("data-paths")+" ").indexOf(" "+id+" ")>=0;
+el.classList.toggle("on-path",!empty&&on);el.classList.toggle("off-path",!empty&&!on);
+if(el.classList.contains("token"))el.classList.toggle("off",!empty&&!on)});
+clear()}
+scnBtns.forEach(function(b){b.addEventListener("click",function(){setScenario(b.getAttribute("data-scn"),b.getAttribute("data-empty")==="1")})});
+})();</script>
+</body>
+</html>

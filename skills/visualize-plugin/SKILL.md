@@ -3,7 +3,8 @@ name: visualize-plugin
 description: >
   Inventory the full source of a Claude Code plugin or an Agent Plugins 1.0 plugin and
   deterministically generate a reviewable structure YAML (the canonical record) plus an
-  Excalidraw structure map. Output is a 3-band canvas: (1) MECE component inventory across
+  Excalidraw structure map and a self-contained HTML map (inline SVG flow, dark/light theme,
+  pan/zoom, click-to-highlight). Output is a 3-band canvas: (1) MECE component inventory across
   9 panels with explicit visibility, (2) execution flow (skills layer, ELK auto-layout),
   (3) a representative invocation trace. Structural changes review as YAML diffs.
   Works in English and Japanese at equal quality (structure YAML `lang` field).
@@ -77,35 +78,51 @@ confirmation before proceeding**.
 node scripts/validate.js --yaml <out>/structure-<name>.yaml
 ```
 
-### Step 4: Convert (Layer 3 — deterministic)
+### Step 4: Convert (Layer 3 — deterministic, two figures from one YAML)
 
 ```bash
 node scripts/convert.js <out>/structure-<name>.yaml -o <out>/<name>.excalidraw
+node scripts/convert.js <out>/structure-<name>.yaml -o <out>/<name>.html
 ```
 
-### Step 5: Validate the figure + determinism
+The output format follows the `-o` extension. Both come from the same ELK layout, so
+flow nodes sit at the same positions in both figures. The HTML is self-contained
+(no external resources, no fonts, no network) and is meant for viewing and sharing;
+the .excalidraw is for manual polish.
+
+### Step 5: Validate the figures + determinism
 
 ```bash
 node scripts/validate.js <out>/<name>.excalidraw
-# determinism: re-convert and require byte-identical output
+node scripts/validate.js <out>/<name>.html --yaml-source <out>/structure-<name>.yaml
+# determinism (Excalidraw): re-convert and require byte-identical output
 node scripts/convert.js <out>/structure-<name>.yaml -o /tmp/re.excalidraw && cmp <out>/<name>.excalidraw /tmp/re.excalidraw
 ```
 
+The HTML mode checks self-containment (no external script/style/image/frame, no
+network API), coverage (every flow node, edge and inventory panel is present) and
+determinism (re-conversion is byte-identical) in one run.
+If you converted with `--style`, pass the same `--style <file>` to the HTML validation so the determinism re-conversion matches.
+
 ### Step 6: Visual check (done by the user)
 
-The user opens `out/<name>.excalidraw` at excalidraw.com (or a local Excalidraw) and
-checks text overflow, node overlap, CJK rendering, and legend/zone placement.
+The user opens `out/<name>.html` in a browser (the representative trace path highlighted with
+moving tokens, everything else dashed and faded; motion toggle, theme toggle, pan/zoom,
+click-to-highlight) and
+`out/<name>.excalidraw` at excalidraw.com (or a local Excalidraw),
+and checks text overflow, node overlap, CJK rendering, and legend/zone placement.
 
 - **Claude never injects local artifacts into a browser session** (no
   `browser_run_code_unsafe` or other sandbox-escaping execution, no pushing scenes to
   external origins — information-leak risk).
 - When issues are reported, **fix the YAML** and rerun from Step 3 (never hand-edit the
-  .excalidraw).
+  .excalidraw or the .html).
 
 ## Output conventions
 
 - Canonical record: `structures/structure-<name>.yaml` (reviewable; structural change = this diff)
 - Figure: `out/<name>.excalidraw` (open at excalidraw.com for manual polish)
+- HTML map: `out/<name>.html` (self-contained; open in any browser; same flow geometry as the .excalidraw)
 - Three bands: (1) 9 inventory panels (Skills / Agents / Hooks / Commands / MCP servers /
   LSP servers / Monitors / Scripts / Data・References), (2) execution flow, (3) trace
 - Wiring reduction: MCP / agent / script dependencies are in-node badges; edges are

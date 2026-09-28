@@ -112,10 +112,10 @@ flow:
     - { cols: [1, 1], label: "抽出とドラフト完成（品質ゲート）" }
     - { cols: [2, 3], label: "正本と図" }
 example_trace:
-  - { actor: user, kind: user, text: "「meiseki プラグインを可視化して」-> visualize-plugin 発動" }
-  - { actor: extract.py, kind: script, text: "方言を自動判定し dirscan で棚卸し。TODO 付きドラフトを出力（Layer 1）" }
+  - { actor: user, kind: user, text: "「meiseki プラグインを可視化して」-> visualize-plugin 発動", node: plugin-src }
+  - { actor: extract.py, kind: script, text: "方言を自動判定し dirscan で棚卸し。TODO 付きドラフトを出力（Layer 1）", node: plugin-src }
   - { actor: visualize-plugin, kind: skill, text: "role 付与・flow 設計・trace 記述で TODO を解消し、役割一覧をユーザーに確認（Layer 2）" }
-  - { actor: validate.js, kind: script, text: "--yaml で TODO 残存・語彙・参照解決を検査" }
-  - { actor: convert.js, kind: script, text: "ELK 自動レイアウトで .excalidraw を生成（Layer 3）" }
-  - { actor: validate.js, kind: script, text: "バインド座標・はみ出しを検査。再変換のバイト同一で決定性を確認" }
-  - { actor: user, kind: user, text: "excalidraw.com で目視確認。直したい点は YAML に反映して再変換" }
+  - { actor: validate.js, kind: script, text: "--yaml で TODO 残存・語彙・参照解決を検査", node: structure-yaml }
+  - { actor: convert.js, kind: script, text: "ELK 自動レイアウトで .excalidraw を生成（Layer 3）", node: excalidraw-fig }
+  - { actor: validate.js, kind: script, text: "バインド座標・はみ出しを検査。再変換のバイト同一で決定性を確認", node: excalidraw-fig }
+  - { actor: user, kind: user, text: "excalidraw.com で目視確認。直したい点は YAML に反映して再変換", node: excalidraw-fig }

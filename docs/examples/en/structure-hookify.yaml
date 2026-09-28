@@ -135,10 +135,10 @@ flow:
     - { cols: [1, 1], label: "rule writing" }
     - { cols: [2, 2], label: "artifacts" }
 example_trace:
-  - { actor: user, kind: user, text: "runs /hookify with no arguments" }
-  - { actor: "hookify (command)", kind: skill, text: "loads the writing-rules skill first to learn the rule format" }
-  - { actor: conversation-analyzer, kind: agent, text: "extracts behaviors to prevent from the last 20-30 messages (tool, pattern, severity)" }
-  - { actor: "hookify (command)", kind: skill, text: "confirms target rules and warn / block via AskUserQuestion" }
-  - { actor: "hookify (command)", kind: skill, text: "writes .claude/hookify.<rule-name>.local.md" }
-  - { actor: rule_engine.py, kind: script, text: "evaluates the rules on subsequent PreToolUse and other events" }
-  - { actor: rule_engine.py, kind: gate, text: "injects a warning on match; action: block rejects the operation" }
+  - { actor: user, kind: user, text: "runs /hookify with no arguments", node: conversation }
+  - { actor: "hookify (command)", kind: skill, text: "loads the writing-rules skill first to learn the rule format", node: writing-rules }
+  - { actor: conversation-analyzer, kind: agent, text: "extracts behaviors to prevent from the last 20-30 messages (tool, pattern, severity)", node: conversation }
+  - { actor: "hookify (command)", kind: skill, text: "confirms target rules and warn / block via AskUserQuestion", node: writing-rules }
+  - { actor: "hookify (command)", kind: skill, text: "writes .claude/hookify.<rule-name>.local.md", node: rule-file }
+  - { actor: rule_engine.py, kind: script, text: "evaluates the rules on subsequent PreToolUse and other events", node: rule-engine }
+  - { actor: rule_engine.py, kind: gate, text: "injects a warning on match; action: block rejects the operation", node: warn-or-block }

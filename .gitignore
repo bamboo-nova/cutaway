@@ -145,3 +145,5 @@ vite.config.ts.timestamp-*
 .claude
 out/**
 structures
+# design records (local only)
+docs/adr/

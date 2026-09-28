@@ -167,8 +167,40 @@ example_trace:
   - { actor: web-intel, kind: mcp, text: "fetch_page / save_evidence" }
   - { actor: note-audit, kind: gate, text: "lint checks -> pass" }
 ```
+`node:` (optional) names the `flow.placement[].ref` where the step happens. The HTML map
+highlights the nodes and direct edges the trace visits and runs moving tokens along
+them; everything else is drawn dashed and faded. Resolution order: explicit `node`, then
+an `actor` that equals a placement ref, then the previous step's node. Steps before the
+first resolvable one do not add to the path. `validate --yaml`
+rejects a `node` that is not a placement ref and warns when no step resolves.
+
 kind: user | skill | orchestrator | agent | mcp | gate | data | script (maps to palette colors).
 5-9 steps, grounded in what the SKILL.md files actually say (never invent).
+
+### Several usage patterns: `example_traces`
+
+When the plugin has more than one typical way of being used (a full run, a resume, an
+escalation, a different launcher), list them as scenarios instead of one `example_trace`.
+Use one or the other, not both.
+
+```yaml
+example_traces:
+  - id: full                       # [A-Za-z0-9_-]+, unique; used by the HTML scenario selector
+    label: "Full run (Claude Code launcher)"
+    summary: "One or two sentences: when this path is taken and what the user sees."
+    steps:                         # same step shape as example_trace (actor / kind / text / node)
+      - { actor: user, kind: user, text: "...", node: goal-input }
+  - id: resume
+    label: "Resume after an interruption"
+    summary: "..."
+    steps: [...]
+```
+
+The HTML map shows a scenario selector above the flow: the selected scenario's path is
+highlighted (its summary is shown next to the selector), everything else is dashed and
+faded, and the tokens flow along that path. Band 3 lists every scenario under its label.
+The Excalidraw figure stacks the scenarios in band 3 with their labels. `validate --yaml`
+checks ids (format, uniqueness), labels, and every step exactly as for `example_trace`.
 
 ## Draft completion conditions (checked by `validate --yaml`)
 

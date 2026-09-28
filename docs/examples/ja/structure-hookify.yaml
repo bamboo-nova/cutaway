@@ -135,10 +135,10 @@ flow:
     - { cols: [1, 1], label: "ルール記述" }
     - { cols: [2, 2], label: "生成物" }
 example_trace:
-  - { actor: user, kind: user, text: "引数なしで /hookify を実行" }
-  - { actor: hookify（コマンド）, kind: skill, text: "最初に writing-rules スキルを読み、ルール書式を把握" }
-  - { actor: conversation-analyzer, kind: agent, text: "直近 20-30 メッセージから防ぎたい挙動を抽出（ツール・パターン・深刻度）" }
-  - { actor: hookify（コマンド）, kind: skill, text: "AskUserQuestion で対象ルールと warn / block を確認" }
-  - { actor: hookify（コマンド）, kind: skill, text: ".claude/hookify.<rule-name>.local.md を生成" }
-  - { actor: rule_engine.py, kind: script, text: "以後の PreToolUse 等でルールを評価" }
-  - { actor: rule_engine.py, kind: gate, text: "一致時は警告を注入、action: block なら操作を拒否" }
+  - { actor: user, kind: user, text: "引数なしで /hookify を実行", node: conversation }
+  - { actor: hookify（コマンド）, kind: skill, text: "最初に writing-rules スキルを読み、ルール書式を把握", node: writing-rules }
+  - { actor: conversation-analyzer, kind: agent, text: "直近 20-30 メッセージから防ぎたい挙動を抽出（ツール・パターン・深刻度）", node: conversation }
+  - { actor: hookify（コマンド）, kind: skill, text: "AskUserQuestion で対象ルールと warn / block を確認", node: writing-rules }
+  - { actor: hookify（コマンド）, kind: skill, text: ".claude/hookify.<rule-name>.local.md を生成", node: rule-file }
+  - { actor: rule_engine.py, kind: script, text: "以後の PreToolUse 等でルールを評価", node: rule-engine }
+  - { actor: rule_engine.py, kind: gate, text: "一致時は警告を注入、action: block なら操作を拒否", node: warn-or-block }

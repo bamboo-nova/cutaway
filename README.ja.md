@@ -3,14 +3,14 @@
 [English](./README.md) | **日本語**
 
 Claude Code プラグイン／Agent Plugins 1.0 の構造を棚卸しするプラグイン。
-レビュー可能な **structure YAML（正本）** と **Excalidraw 構成図** を決定的に生成する。
+レビュー可能な **structure YAML（正本）**、手直し用の **Excalidraw 構成図**、代表トレースの経路を強調して動かす(利用シナリオが複数あれば切り替えられる)**自己完結 HTML 構成図** の 3 つを決定的に生成する。
 
 ## 3層アーキテクチャ
 
 ```
 [Layer 1: 抽出]  プラグインソース ──(extract.py: dirscan+manifest+SKILL.md精読)──▶
 [Layer 2: 正本]  structures/structure-<plugin>.yaml（plugin-structure/v1.1、人がレビュー）──▶
-[Layer 3: 描画]  convert.js（ELK自動レイアウト）──▶ out/<plugin>.excalidraw ──▶ excalidraw.com で微調整
+[Layer 3: 描画]  convert.js（ELK自動レイアウト）──▶ out/<plugin>.excalidraw（excalidraw.com で微調整）＋ out/<plugin>.html（ブラウザで閲覧）
 ```
 
 - **構造変更＝YAML差分**としてレビューできることが核心価値。
@@ -33,28 +33,28 @@ PNG は .excalidraw ファイルからローカルで描画したもの。
 ![meiseki プラグイン構成図](docs/examples/ja/meiseki.png)
 
 元データ: [structure YAML](docs/examples/ja/structure-meiseki.yaml) /
-[.excalidraw](docs/examples/ja/meiseki.excalidraw)
+[.excalidraw](docs/examples/ja/meiseki.excalidraw) / [HTML](docs/examples/ja/meiseki.html)
 
 ### cutaway（自己可視化）
 
 ![cutaway プラグイン構成図](docs/examples/ja/cutaway.png)
 
 元データ: [structure YAML](docs/examples/ja/structure-cutaway.yaml) /
-[.excalidraw](docs/examples/ja/cutaway.excalidraw)
+[.excalidraw](docs/examples/ja/cutaway.excalidraw) / [HTML](docs/examples/ja/cutaway.html)
 
 ### hookify（公式ディレクトリ・Anthropic 製）
 
 ![hookify プラグイン構成図](docs/examples/ja/hookify.png)
 
 元データ: [structure YAML](docs/examples/ja/structure-hookify.yaml) /
-[.excalidraw](docs/examples/ja/hookify.excalidraw)
+[.excalidraw](docs/examples/ja/hookify.excalidraw) / [HTML](docs/examples/ja/hookify.html)
 
 ### discord（公式ディレクトリ・パートナー製）
 
 ![discord プラグイン構成図](docs/examples/ja/discord.png)
 
 元データ: [structure YAML](docs/examples/ja/structure-discord.yaml) /
-[.excalidraw](docs/examples/ja/discord.excalidraw)
+[.excalidraw](docs/examples/ja/discord.excalidraw) / [HTML](docs/examples/ja/discord.html)
 
 空のカテゴリも「走査済み・なし」としてパネルに残る。0 を黙って消さないのが規律。
 
@@ -132,7 +132,9 @@ uv run extract.py <plugin-root> -o ../../../structures/structure-<name>.yaml --l
 #（ドラフトの TODO(Claude) を references/extraction-checklist.md に従って完成させる）
 node validate.js --yaml ../../../structures/structure-<name>.yaml
 node convert.js ../../../structures/structure-<name>.yaml -o ../../../out/<name>.excalidraw
+node convert.js ../../../structures/structure-<name>.yaml -o ../../../out/<name>.html
 node validate.js ../../../out/<name>.excalidraw
+node validate.js ../../../out/<name>.html --yaml-source ../../../structures/structure-<name>.yaml
 ```
 
 スキル経由の詳細ワークフローは `skills/visualize-plugin/SKILL.md` を参照。
@@ -141,7 +143,7 @@ node validate.js ../../../out/<name>.excalidraw
 
 - `skills/visualize-plugin/` — スキル本体（scripts / references / assets/fixtures）
 - `structures/` — 各プラグインの structure YAML 正本
-- `out/` — 生成された .excalidraw
+- `out/` — 生成された .excalidraw と .html
 - `convert5.js` — プロトタイプ期の凍結参照
 
 ## 謝辞
@@ -157,6 +159,10 @@ node validate.js ../../../out/<name>.excalidraw
   YAML 処理は [js-yaml](https://github.com/nodeca/js-yaml) を利用している。
   図の形式は [Excalidraw](https://github.com/excalidraw/excalidraw) に依る。
   各 OSS の作者・コミュニティに感謝する。ライセンスは各パッケージのものに従う。
+- HTML 構成図の見た目（型付きの正本を決定的に単一の自己完結 HTML へ変換し、テーマ切替とパン／ズームを持つ構成）は
+  [archify](https://github.com/tt-a1i/archify)（tt-a1i、MIT）と、その元である Cocoon AI の
+  [architecture-diagram-generator](https://github.com/Cocoon-AI/architecture-diagram-generator)（MIT）に着想を得た。
+  cutaway はどちらのコードも含まず、HTML 出力は独自に実装している。
 
 ## 免責事項
 

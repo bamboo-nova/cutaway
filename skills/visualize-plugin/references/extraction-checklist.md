@@ -83,6 +83,17 @@ One representative invocation in 5-9 steps. Every step's text must be grounded i
 the SKILL.md actually says (never invent). actor = component name, kind = color
 (user/orchestrator/skill/agent/mcp/gate/data/script).
 
+When the actor is not a flow node (an MCP server, an agent, a script, the user), add
+`node: <placement ref>` naming the node where that step happens. The HTML map highlights
+the path the trace visits (nodes and direct edges) and fades everything else; steps
+without a resolvable node do not add to the path.
+
+If the plugin has several typical usage patterns whose paths through the flow differ
+(full run, resume, escalation, another launcher), write `example_traces` instead: one
+scenario per pattern with `id`, `label`, a one-or-two-sentence `summary` of when that
+path is taken, and its `steps`. Put the most common pattern first — it is what the HTML
+shows before the reader picks another.
+
 ## 7. Finish
 
 - Remove every `# TODO(Claude):` (hint comments may stay).

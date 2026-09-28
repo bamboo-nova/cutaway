@@ -3,16 +3,14 @@
 **English** | [日本語](./README.ja.md)
 
 Inventories the structure of Claude Code plugins and Agent Plugins 1.0 plugins.
-From that inventory it deterministically generates two artifacts.
-One is a reviewable **structure YAML**, the canonical record.
-The other is an **Excalidraw structure map**.
+From that inventory it deterministically generates three artifacts: a reviewable **structure YAML** (the canonical record), an **Excalidraw structure map** for manual polish, and a **self-contained HTML map** that highlights and animates the representative trace path (several usage scenarios can be listed and switched).
 
 ## Three-layer architecture
 
 ```
 [Layer 1: extract]  plugin sources --(extract.py: dirscan + manifest + SKILL.md close-read)-->
 [Layer 2: canon]    structures/structure-<plugin>.yaml  (plugin-structure/v1.1, reviewed by humans)
-[Layer 3: render]   convert.js (ELK auto-layout) --> out/<plugin>.excalidraw --> polish at excalidraw.com
+[Layer 3: render]   convert.js (ELK auto-layout) --> out/<plugin>.excalidraw (polish at excalidraw.com) + out/<plugin>.html (open in a browser)
 ```
 
 - **Structural change = a YAML diff.** That is the core value of this plugin.
@@ -37,28 +35,28 @@ Japanese versions of every example live in [docs/examples/ja/](docs/examples/ja/
 ![meiseki plugin structure map](docs/examples/en/meiseki.png)
 
 Sources: [structure YAML](docs/examples/en/structure-meiseki.yaml) /
-[.excalidraw](docs/examples/en/meiseki.excalidraw)
+[.excalidraw](docs/examples/en/meiseki.excalidraw) / [HTML](docs/examples/en/meiseki.html)
 
 ### cutaway (self-portrait)
 
 ![cutaway plugin structure map](docs/examples/en/cutaway.png)
 
 Sources: [structure YAML](docs/examples/en/structure-cutaway.yaml) /
-[.excalidraw](docs/examples/en/cutaway.excalidraw)
+[.excalidraw](docs/examples/en/cutaway.excalidraw) / [HTML](docs/examples/en/cutaway.html)
 
 ### hookify (official plugin directory, by Anthropic)
 
 ![hookify plugin structure map](docs/examples/en/hookify.png)
 
 Sources: [structure YAML](docs/examples/en/structure-hookify.yaml) /
-[.excalidraw](docs/examples/en/hookify.excalidraw)
+[.excalidraw](docs/examples/en/hookify.excalidraw) / [HTML](docs/examples/en/hookify.html)
 
 ### discord (official plugin directory, partner plugin)
 
 ![discord plugin structure map](docs/examples/en/discord.png)
 
 Sources: [structure YAML](docs/examples/en/structure-discord.yaml) /
-[.excalidraw](docs/examples/en/discord.excalidraw)
+[.excalidraw](docs/examples/en/discord.excalidraw) / [HTML](docs/examples/en/discord.html)
 
 Empty categories stay on the canvas as "scanned, none". A zero is never silently dropped.
 
@@ -140,7 +138,9 @@ uv run extract.py <plugin-root> -o ../../../structures/structure-<name>.yaml --l
 # (complete the draft's TODO(Claude) markers per references/extraction-checklist.md)
 node validate.js --yaml ../../../structures/structure-<name>.yaml
 node convert.js ../../../structures/structure-<name>.yaml -o ../../../out/<name>.excalidraw
+node convert.js ../../../structures/structure-<name>.yaml -o ../../../out/<name>.html
 node validate.js ../../../out/<name>.excalidraw
+node validate.js ../../../out/<name>.html --yaml-source ../../../structures/structure-<name>.yaml
 ```
 
 See `skills/visualize-plugin/SKILL.md` for the full skill-driven workflow.
@@ -149,7 +149,7 @@ See `skills/visualize-plugin/SKILL.md` for the full skill-driven workflow.
 
 - `skills/visualize-plugin/` — the skill (scripts / references / assets/fixtures)
 - `structures/` — canonical structure YAML per visualized plugin
-- `out/` — generated .excalidraw figures
+- `out/` — generated .excalidraw and .html figures
 - `convert5.js` — frozen prototype kept for reference
 
 ## Acknowledgements
@@ -165,6 +165,11 @@ See `skills/visualize-plugin/SKILL.md` for the full skill-driven workflow.
   handling by [js-yaml](https://github.com/nodeca/js-yaml).
   The output format belongs to [Excalidraw](https://github.com/excalidraw/excalidraw).
   Thanks to all of these OSS communities; each package follows its own license.
+- The look of the HTML map (a typed source compiled deterministically into a single
+  self-contained HTML file with theme switching and pan/zoom) is inspired by
+  [archify](https://github.com/tt-a1i/archify) (tt-a1i, MIT) and its origin,
+  Cocoon AI's [architecture-diagram-generator](https://github.com/Cocoon-AI/architecture-diagram-generator) (MIT).
+  cutaway shares no code with either project; the HTML emitter is written from scratch.
 
 ## Disclaimer
 

@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>hookify プラグイン構成図</title>
+<script>(function(){try{var t=localStorage.getItem("cutaway-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}})();</script>
+<style>
+:root{--bg:#ffffff;--fg:#1e1e1e;--muted:#868e96;--sub:#343a40;--border:#adb5bd;--panel:#ffffff;--zone:#adb5bd;--iso:#e03131;--edge:#343a40;--edge-ref:#868e96;--btn:#f1f3f5;--btn-fg:#343a40;--tok:#f08c00;color-scheme:light}
+.role-orchestrator{--stroke:#6741d9;--fill:#d0bfff}
+.role-gate{--stroke:#e8590c;--fill:#ffd8a8}
+.role-generator{--stroke:#1971c2;--fill:#a5d8ff}
+.role-agent{--stroke:#0c8599;--fill:#99e9f2}
+.role-mcp{--stroke:#2f9e44;--fill:#b2f2bb}
+.role-script{--stroke:#9c36b5;--fill:#eebefa}
+.role-data{--stroke:#495057;--fill:#f1f3f5}
+.role-user{--stroke:#495057;--fill:#e9ecef}
+.role-hook{--stroke:#c92a2a;--fill:#ffc9c9}
+.role-collector{--stroke:#1971c2;--fill:#a5d8ff}
+.role-analyzer{--stroke:#1971c2;--fill:#a5d8ff}
+.role-importer{--stroke:#1971c2;--fill:#a5d8ff}
+.role-maintenance{--stroke:#1971c2;--fill:#a5d8ff}
+.role-inventory{--stroke:#1971c2;--fill:#a5d8ff}
+.role-advisor{--stroke:#1971c2;--fill:#a5d8ff}
+.role-recorder{--stroke:#1971c2;--fill:#a5d8ff}
+.role-reporter{--stroke:#1971c2;--fill:#a5d8ff}
+.role-knowledge{--stroke:#748ffc;--fill:#dbe4ff}
+.role-command{--stroke:#1971c2;--fill:#a5d8ff}
+:root[data-theme=dark]{--bg:#0f1115;--fg:#e9ecef;--muted:#8b949e;--sub:#c9d1d9;--border:#3b4048;--panel:#161a20;--zone:#5c636a;--iso:#ff6b6b;--edge:#c9d1d9;--edge-ref:#8b949e;--btn:#21262d;--btn-fg:#e9ecef;--tok:#ffd43b;color-scheme:dark}
+:root[data-theme=dark] .role-orchestrator{--stroke:#b197fc;--fill:#2b1f5c}
+:root[data-theme=dark] .role-gate{--stroke:#ffa94d;--fill:#5c2f0c}
+:root[data-theme=dark] .role-generator{--stroke:#74c0fc;--fill:#12385c}
+:root[data-theme=dark] .role-agent{--stroke:#66d9e8;--fill:#0b3f47}
+:root[data-theme=dark] .role-mcp{--stroke:#8ce99a;--fill:#1b4d2a}
+:root[data-theme=dark] .role-script{--stroke:#e599f7;--fill:#4a1a5c}
+:root[data-theme=dark] .role-data{--stroke:#ced4da;--fill:#2b2f33}
+:root[data-theme=dark] .role-user{--stroke:#ced4da;--fill:#33373b}
+:root[data-theme=dark] .role-hook{--stroke:#ff8787;--fill:#5c1a1a}
+:root[data-theme=dark] .role-collector{--stroke:#74c0fc;--fill:#12385c}
+:root[data-theme=dark] .role-analyzer{--stroke:#74c0fc;--fill:#12385c}
+:root[data-theme=dark] .role-importer{--stroke:#74c0fc;--fill:#12385c}
+:root[data-theme=dark] .role-maintenance{--stroke:#74c0fc;--fill:#12385c}
+:root[data-theme=dark] .role-inventory{--stroke:#74c0fc;--fill:#12385c}
+:root[data-theme=dark] .role-advisor{--stroke:#74c0fc;--fill:#12385c}
+:root[data-theme=dark] .role-recorder{--stroke:#74c0fc;--fill:#12385c}
+:root[data-theme=dark] .role-reporter{--stroke:#74c0fc;--fill:#12385c}
+:root[data-theme=dark] .role-knowledge{--stroke:#91a7ff;--fill:#243063}
+:root[data-theme=dark] .role-command{--stroke:#74c0fc;--fill:#12385c}
+@media (prefers-color-scheme:dark){
+:root:not([data-theme=light]){--bg:#0f1115;--fg:#e9ecef;--muted:#8b949e;--sub:#c9d1d9;--border:#3b4048;--panel:#161a20;--zone:#5c636a;--iso:#ff6b6b;--edge:#c9d1d9;--edge-ref:#8b949e;--btn:#21262d;--btn-fg:#e9ecef;--tok:#ffd43b;color-scheme:dark}
+:root:not([data-theme=light]) .role-orchestrator{--stroke:#b197fc;--fill:#2b1f5c}
+:root:not([data-theme=light]) .role-gate{--stroke:#ffa94d;--fill:#5c2f0c}
+:root:not([data-theme=light]) .role-generator{--stroke:#74c0fc;--fill:#12385c}
+:root:not([data-theme=light]) .role-agent{--stroke:#66d9e8;--fill:#0b3f47}
+:root:not([data-theme=light]) .role-mcp{--stroke:#8ce99a;--fill:#1b4d2a}
+:root:not([data-theme=light]) .role-script{--stroke:#e599f7;--fill:#4a1a5c}
+:root:not([data-theme=light]) .role-data{--stroke:#ced4da;--fill:#2b2f33}
+:root:not([data-theme=light]) .role-user{--stroke:#ced4da;--fill:#33373b}
+:root:not([data-theme=light]) .role-hook{--stroke:#ff8787;--fill:#5c1a1a}
+:root:not([data-theme=light]) .role-collector{--stroke:#74c0fc;--fill:#12385c}
+:root:not([data-theme=light]) .role-analyzer{--stroke:#74c0fc;--fill:#12385c}
+:root:not([data-theme=light]) .role-importer{--stroke:#74c0fc;--fill:#12385c}
+:root:not([data-theme=light]) .role-maintenance{--stroke:#74c0fc;--fill:#12385c}
+:root:not([data-theme=light]) .role-inventory{--stroke:#74c0fc;--fill:#12385c}
+:root:not([data-theme=light]) .role-advisor{--stroke:#74c0fc;--fill:#12385c}
+:root:not([data-theme=light]) .role-recorder{--stroke:#74c0fc;--fill:#12385c}
+:root:not([data-theme=light]) .role-reporter{--stroke:#74c0fc;--fill:#12385c}
+:root:not([data-theme=light]) .role-knowledge{--stroke:#91a7ff;--fill:#243063}
+:root:not([data-theme=light]) .role-command{--stroke:#74c0fc;--fill:#12385c}
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;padding:24px 16px 48px;font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,"Hiragino Sans","Noto Sans CJK JP","Yu Gothic UI",sans-serif;color:var(--fg);background:var(--bg)}
+code,.mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-start;gap:12px 24px}
+header.top>div{flex:1 1 320px;min-width:0}
+h1{font-size:22px;margin:0 0 4px}
+.meta{color:var(--muted);font-size:12px;margin:2px 0 0}
+.overview{color:var(--sub);font-size:13px;margin:6px 0 0;max-width:80ch}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;list-style:none;padding:0;margin:14px 0 0;font-size:12px;color:var(--sub)}
+.legend li{display:flex;align-items:center;gap:6px}
+.sw{width:22px;height:14px;border-radius:3px;border:1.4px solid var(--stroke);background:var(--fill)}
+.legend .suffix{color:var(--muted)}
+button{font:inherit;font-size:12px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--btn);color:var(--btn-fg);cursor:pointer}
+section{margin-top:32px}
+h2{font-size:15px;color:var(--sub);margin:0 0 10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+h2 .tools{margin-left:auto;display:flex;gap:6px}
+h2.draft{color:var(--muted);font-weight:normal}
+.hint{color:var(--muted);font-size:11.5px;font-weight:normal}
+.viewport{border:1px solid var(--border);border-radius:8px;background:var(--panel);overflow:hidden;touch-action:none;cursor:grab}
+.viewport.dragging{cursor:grabbing}
+svg[data-flow]{display:block;width:100%;height:auto;max-height:82vh;user-select:none}
+svg text{font-family:inherit;fill:var(--fg)}
+.lane-label{fill:var(--muted);font-size:12.5px}
+.lane-iso{fill:none;stroke:var(--iso);stroke-width:1.5;stroke-dasharray:6 4}
+.lane-iso-label{fill:var(--iso);font-size:12.5px}
+.zone{fill:none;stroke:var(--zone);stroke-width:1;stroke-dasharray:5 4}
+.zone-label{fill:var(--muted);font-size:12.5px}
+.node{cursor:pointer}
+.node .shape{fill:var(--fill);stroke:var(--stroke);stroke-width:2}
+.node.kind-data .shape{stroke-dasharray:6 4}
+.node text{font-size:12.5px;text-anchor:middle}
+.edge{fill:none;stroke:var(--edge);stroke-width:1.4}
+.edge.ref{stroke:var(--edge-ref);stroke-dasharray:6 4}
+.edge-label{font-size:10.5px;fill:var(--sub)}
+.edge-label{paint-order:stroke;stroke:var(--panel);stroke-width:3px;stroke-linejoin:round}
+#m-flow path{fill:var(--edge)}#m-ref path{fill:var(--edge-ref)}
+svg.focus .node:not(.hi),svg.focus .edge:not(.hi),svg.focus .edge-label:not(.hi){opacity:.18}
+.node.hi .shape{stroke-width:3}
+.panels{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.panel{border:1px dashed var(--border);border-radius:8px;padding:12px;background:var(--panel);min-width:0}
+.panel h3{font-size:14px;margin:0 0 10px;color:var(--sub);font-weight:600}
+.chip{border:1.4px solid var(--stroke);background:var(--fill);color:var(--fg);border-radius:6px;padding:6px 10px;font-size:12px;line-height:1.4;overflow-wrap:anywhere}
+.panel .chip+.chip{margin-top:8px}
+.panel .empty{color:var(--muted);font-size:12px;margin:0}
+.trace{list-style:none;padding:0;margin:0;max-width:720px}
+.trace li{position:relative}
+.trace li+li{margin-top:18px}
+.trace li+li::before{content:"";position:absolute;left:24px;top:-18px;height:18px;border-left:1.2px solid var(--edge-ref)}
+.tokens{display:none}
+svg.motion .tokens{display:block}
+.token{fill:var(--tok);opacity:.9}
+.node.off-path .shape{stroke-dasharray:6 4;opacity:.35}
+.node.off-path text{opacity:.45}
+.edge.off-path{stroke-dasharray:6 4;opacity:.35}
+.edge-label.off-path{opacity:.45}
+.edge.on-path{stroke-width:2.2}
+.node.on-path .shape{stroke-width:2.4}
+.token.off{display:none}
+.scenarios{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 10px}
+.scn-title{font-size:12px;color:var(--sub);margin-right:4px}
+.scn-summary{margin:0 0 10px;padding:8px 12px;border-left:3px solid var(--tok);background:var(--panel);color:var(--sub);font-size:13px;max-width:80ch}
+.scenario{margin-top:18px;transition:opacity .2s}
+.scenario h3{font-size:14px;margin:0 0 6px;color:var(--sub)}
+.scenario .summary{margin:0 0 10px;color:var(--muted);font-size:12.5px;max-width:80ch}
+.scenario:not(.active){opacity:.55}
+button[aria-pressed=true]{background:var(--tok);color:#1e1e1e;border-color:var(--tok)}
+h2 .tools{align-items:center;flex-wrap:wrap}
+footer{margin-top:40px;color:var(--muted);font-size:11.5px}
+@media (max-width:700px){svg[data-flow]{height:60vh}}
+</style>
+</head>
+<body>
+<header class="top"><div><h1>hookify プラグイン構成図</h1>
+<p class="meta">形式: Claude Code プラグイン形式</p>
+<p class="overview">概要: 会話ログから防ぎたい挙動を見つけ、.local.md のルールファイルとして Claude Code のフックに変換するプラグイン（Anthropic 製）。</p>
+</div><button id="theme" type="button">テーマ切替</button></header>
+<ul class="legend"><li>凡例:</li><li class="role-orchestrator"><span class="sw"></span>オーケストレータ</li><li class="role-generator"><span class="sw"></span>スキル</li><li class="role-knowledge"><span class="sw"></span>参照知識スキル</li><li class="role-gate"><span class="sw"></span>ゲート/監査</li><li class="role-agent"><span class="sw"></span>エージェント</li><li class="role-mcp"><span class="sw"></span>MCPサーバー</li><li class="role-script"><span class="sw"></span>スクリプト</li><li class="role-data"><span class="sw"></span>データ/成果物</li><li class="suffix">破線=参照・データ ／ 赤破線枠=隔離境界 ／「不可視」=この環境でソース未マウントのため確認不可（0ではない）</li></ul>
+<section id="flow"><h2>実行フロー（Skills レイヤー）<span class="hint">ノードをクリックで関連を強調 ／ ドラッグで移動 ／ ホイールで拡大縮小</span><span class="tools"><button id="motion" type="button" aria-pressed="false">モーション</button><button id="reset" type="button">表示をリセット</button></span></h2><div class="viewport"><svg data-flow xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1117 512" preserveAspectRatio="xMinYMin meet" role="img" aria-label="実行フロー（Skills レイヤー）"><defs><marker id="m-flow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker><marker id="m-ref" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z"/></marker></defs><g id="scene"><text class="lane-label" x="14" y="24">ルール作成（/hookify コマンド起点）</text><text class="lane-label" x="14" y="312">実行時検査（4 イベントのフック）</text><rect class="zone" x="30" y="59.5" width="304" height="180.5"/><text class="zone-label" x="40" y="77.5">分析</text><rect class="zone" x="405" y="34" width="304" height="206"/><text class="zone-label" x="415" y="52">ルール記述</text><rect class="zone" x="780" y="59.5" width="307" height="180.5"/><text class="zone-label" x="790" y="77.5">生成物</text><path id="fe-0" class="edge on-path" data-from="conversation" data-to="writing-rules" data-paths="default" d="M312 144 L427 144" marker-end="url(#m-flow)"/><path id="fe-1" class="edge on-path" data-from="writing-rules" data-to="rule-file" data-paths="default" d="M687 144 L802 144" marker-end="url(#m-flow)"/><path id="fe-2" class="edge off-path" data-from="tool-event" data-to="rule-engine" data-paths="" d="M284 415 L399 415" marker-end="url(#m-flow)"/><path id="fe-3" class="edge on-path" data-from="rule-engine" data-to="warn-or-block" data-paths="default" d="M661 415 L776 415" marker-end="url(#m-flow)"/><path id="fe-4" class="edge ref on-path" data-from="rule-file" data-to="rule-engine" data-paths="default" d="M933.5 180.5 L933.5 315 L530 315 L530 370" marker-end="url(#m-ref)"/><g class="node role-data kind-data on-path" data-ref="conversation" data-paths="default"><rect class="shape" x="52" y="107.5" width="260" height="73" rx="8"/><text x="182" y="127.13" dominant-baseline="middle"><tspan x="182">conversation</tspan><tspan x="182" dy="16.88">会話ログ（不満シグナル・修正指示を走</tspan><tspan x="182" dy="16.88">査）</tspan></text></g><g class="node role-knowledge kind-knowledge on-path" data-ref="writing-rules" data-paths="default"><rect class="shape" x="427" y="82" width="260" height="124" rx="8"/><text x="557" y="101.81" dominant-baseline="middle"><tspan x="557">writing-rules</tspan><tspan x="557" dy="16.88">hookify ルールファイル（YAML</tspan><tspan x="557" dy="16.88">frontmatter 付き Markdown）の書</tspan><tspan x="557" dy="16.88">式・イベント種別・パターン構文を解説</tspan><tspan x="557" dy="16.88">する参照スキル。/hookify コマンド</tspan><tspan x="557" dy="16.88">が最初に読み込む。</tspan></text></g><g class="node role-data kind-artifact on-path" data-ref="rule-file" data-paths="default"><rect class="shape" x="802" y="107.5" width="263" height="73" rx="8"/><text x="933.5" y="127.13" dominant-baseline="middle"><tspan x="933.5">rule-file</tspan><tspan x="933.5" dy="16.88">.claude/hookify.&lt;name&gt;.local.m</tspan><tspan x="933.5" dy="16.88">d（生成ルール）</tspan></text></g><g class="node role-data kind-data off-path" data-ref="tool-event" data-paths=""><rect class="shape" x="52" y="378.5" width="232" height="73" rx="8"/><text x="168" y="398.13" dominant-baseline="middle"><tspan x="168">tool-event</tspan><tspan x="168" dy="16.88">PreToolUse / PostToolUse /</tspan><tspan x="168" dy="16.88">Stop / UserPromptSubmit</tspan></text></g><g class="node role-script kind-script on-path" data-ref="rule-engine" data-paths="default"><rect class="shape" x="399" y="370" width="262" height="90" rx="8"/><text x="530" y="389.69" dominant-baseline="middle"><tspan x="530">rule-engine</tspan><tspan x="530" dy="16.88">hooks/*.py -&gt;</tspan><tspan x="530" dy="16.88">core/rule_engine.py で全ルールを</tspan><tspan x="530" dy="16.88">評価</tspan></text></g><g class="node role-data kind-artifact on-path" data-ref="warn-or-block" data-paths="default"><rect class="shape" x="776" y="378.5" width="238" height="73" rx="8"/><text x="895" y="398.13" dominant-baseline="middle"><tspan x="895">warn-or-block</tspan><tspan x="895" dy="16.88">警告表示またはブロック（action:</tspan><tspan x="895" dy="16.88">warn / block）</tspan></text></g><text class="edge-label on-path" data-from="rule-file" data-to="rule-engine" data-paths="default" x="939.5" y="239.75">設定として読込</text><g class="tokens"><circle class="token" r="3.5" data-paths="default"><animateMotion dur="1.5s" begin="0s" repeatCount="indefinite"><mpath href="#fe-0" xlink:href="#fe-0"/></animateMotion></circle><circle class="token" r="3.5" data-paths="default"><animateMotion dur="1.5s" begin="0.4s" repeatCount="indefinite"><mpath href="#fe-1" xlink:href="#fe-1"/></animateMotion></circle><circle class="token" r="3.5" data-paths="default"><animateMotion dur="1.5s" begin="0.8s" repeatCount="indefinite"><mpath href="#fe-3" xlink:href="#fe-3"/></animateMotion></circle></g></g></svg></div></section>
+<section id="inventory"><h2>コンポーネント棚卸し（MECE）</h2><div class="panels">
+<article class="panel" data-panel="skills"><h3>Skills（1）</h3>
+<div class="chip role-knowledge">writing-rules<br>〔knowledge〕</div>
+</article>
+<article class="panel" data-panel="agents"><h3>Agents（1）</h3>
+<div class="chip role-agent">conversation-analyzer<br>→ <br>起動元はスキルではなく commands/hookify.md（引数なしの /hookify 実行時に Task で起動）</div>
+</article>
+<article class="panel" data-panel="hooks"><h3>Hooks（4）</h3>
+<div class="chip role-hook">PreToolUse → command<br>python3 &quot;${CLAUDE_PLUGIN_ROOT}/hooks/pretooluse.py&quot;</div>
+<div class="chip role-hook">PostToolUse → command<br>python3 &quot;${CLAUDE_PLUGIN_ROOT}/hooks/posttooluse.py&quot;</div>
+<div class="chip role-hook">Stop → command<br>python3 &quot;${CLAUDE_PLUGIN_ROOT}/hooks/stop.py&quot;</div>
+<div class="chip role-hook">UserPromptSubmit → command<br>python3 &quot;${CLAUDE_PLUGIN_ROOT}/hooks/userpromptsubmit.py&quot;</div>
+</article>
+<article class="panel" data-panel="commands"><h3>Commands（4）</h3>
+<div class="chip role-command">hookify<br>会話分析または明示指示から防止ルールを作成（引数なしなら conversation-analyzer を起動）</div>
+<div class="chip role-command">configure<br>ルールの有効・無効を対話的に切り替える</div>
+<div class="chip role-command">list<br>設定済みルールの一覧表示</div>
+<div class="chip role-command">help<br>プラグインの使い方ヘルプ</div>
+</article>
+<article class="panel" data-panel="mcp_servers"><h3>MCP servers（走査済み・なし）</h3>
+<p class="empty">ディレクトリ/設定を走査した上で存在しない</p>
+</article>
+<article class="panel" data-panel="lsp_servers"><h3>LSP servers（走査済み・なし）</h3>
+<p class="empty">ディレクトリ/設定を走査した上で存在しない</p>
+</article>
+<article class="panel" data-panel="monitors"><h3>Monitors（走査済み・なし）</h3>
+<p class="empty">ディレクトリ/設定を走査した上で存在しない</p>
+</article>
+<article class="panel" data-panel="scripts"><h3>Scripts（2）</h3>
+<div class="chip role-script">core/rule_engine.py<br>ルール評価エンジン（イベント別にパターン照合し warn / block を判定）</div>
+<div class="chip role-script">core/config_loader.py<br>設定ローダー（.claude/hookify.*.local.md ルールファイルを読込）</div>
+</article>
+<article class="panel" data-panel="data_references"><h3>Data / References（4）</h3>
+<div class="chip role-data">examples/dangerous-rm.local.md〔例〕<br>危険な rm をブロックするルール例</div>
+<div class="chip role-data">examples/console-log-warning.local.md〔例〕</div>
+<div class="chip role-data">examples/sensitive-files-warning.local.md〔例〕</div>
+<div class="chip role-data">examples/require-tests-stop.local.md〔例〕</div>
+</article>
+</div></section>
+<section id="trace"><h2>呼び出し例（代表トレース）</h2>
+<ol class="trace">
+<li data-step="1" data-node="conversation"><div class="chip role-user">1. 〔user〕 引数なしで /hookify を実行</div></li>
+<li data-step="2" data-node="writing-rules"><div class="chip role-generator">2. 〔hookify（コマンド）〕 最初に writing-rules スキルを読み、ルール書式を把握</div></li>
+<li data-step="3" data-node="conversation"><div class="chip role-agent">3. 〔conversation-analyzer〕 直近 20-30 メッセージから防ぎたい挙動を抽出（ツール・パターン・深刻度）</div></li>
+<li data-step="4" data-node="writing-rules"><div class="chip role-generator">4. 〔hookify（コマンド）〕 AskUserQuestion で対象ルールと warn / block を確認</div></li>
+<li data-step="5" data-node="rule-file"><div class="chip role-generator">5. 〔hookify（コマンド）〕 .claude/hookify.&lt;rule-name&gt;.local.md を生成</div></li>
+<li data-step="6" data-node="rule-engine"><div class="chip role-script">6. 〔rule_engine.py〕 以後の PreToolUse 等でルールを評価</div></li>
+<li data-step="7" data-node="warn-or-block"><div class="chip role-gate">7. 〔rule_engine.py〕 一致時は警告を注入、action: block なら操作を拒否</div></li>
+</ol>
+</section>
+<footer>cutaway が structure YAML（plugin-structure/v1.1、hookify）から決定論的に生成。図は派生物であり、構造の変更は YAML の差分で扱う。</footer>
+<script>(function(){
+var root=document.documentElement,KEY="cutaway-theme";
+var tb=document.getElementById("theme");
+if(tb)tb.addEventListener("click",function(){
+var cur=root.getAttribute("data-theme")||(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");
+var next=cur==="dark"?"light":"dark";root.setAttribute("data-theme",next);
+try{localStorage.setItem(KEY,next)}catch(e){}});
+var svg=document.querySelector("svg[data-flow]");if(!svg)return;
+var scene=svg.querySelector("#scene"),vp=svg.parentNode,s=1,tx=0,ty=0;
+var reduced=!!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);
+function apply(){scene.setAttribute("transform","translate("+tx+" "+ty+") scale("+s+")")}
+function pt(e){var p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(svg.getScreenCTM().inverse())}
+svg.addEventListener("wheel",function(e){e.preventDefault();var p=pt(e),k=e.deltaY<0?1.1:1/1.1,ns=Math.min(8,Math.max(0.2,s*k));
+tx=p.x-(p.x-tx)*ns/s;ty=p.y-(p.y-ty)*ns/s;s=ns;apply()},{passive:false});
+var drag=null,moved=false;
+svg.addEventListener("pointerdown",function(e){if(e.button!==0)return;var p=pt(e);drag={x:p.x,y:p.y};moved=false;vp.classList.add("dragging")});
+svg.addEventListener("pointermove",function(e){if(!drag)return;var p=pt(e),dx=p.x-drag.x,dy=p.y-drag.y;
+if(!moved&&Math.abs(dx)+Math.abs(dy)>2){moved=true;try{svg.setPointerCapture(e.pointerId)}catch(err){}}tx+=dx;ty+=dy;drag={x:p.x,y:p.y};apply()});
+function end(){drag=null;vp.classList.remove("dragging")}
+svg.addEventListener("pointerup",end);svg.addEventListener("pointercancel",end);
+var nodes=[].slice.call(svg.querySelectorAll(".node")),links=[].slice.call(svg.querySelectorAll(".edge,.edge-label"));
+function clear(){svg.classList.remove("focus");nodes.concat(links).forEach(function(el){el.classList.remove("hi")})}
+function focusNode(id){var keep={};keep[id]=1;clear();svg.classList.add("focus");
+links.forEach(function(el){var f=el.getAttribute("data-from"),t=el.getAttribute("data-to");if(f===id||t===id){el.classList.add("hi");keep[f]=1;keep[t]=1}});
+nodes.forEach(function(n){if(keep[n.getAttribute("data-ref")])n.classList.add("hi")})}
+svg.addEventListener("click",function(e){
+if(moved){moved=false;return}
+var g=e.target.closest?e.target.closest(".node"):null;
+if(!g){clear();return}
+focusNode(g.getAttribute("data-ref"))});
+var rb=document.getElementById("reset");if(rb)rb.addEventListener("click",function(){s=1;tx=0;ty=0;apply();clear()});
+var mb=document.getElementById("motion");
+function setMotion(on){svg.classList.toggle("motion",on);if(mb)mb.setAttribute("aria-pressed",on?"true":"false")}
+setMotion(!reduced);
+if(mb)mb.addEventListener("click",function(){setMotion(!svg.classList.contains("motion"))});
+var scnBtns=[].slice.call(document.querySelectorAll(".scenarios .scn"));
+function setScenario(id,empty){
+scnBtns.forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-scn")===id?"true":"false")});
+[].slice.call(document.querySelectorAll(".scn-summary")).forEach(function(p){p.hidden=p.getAttribute("data-scn")!==id});
+[].slice.call(document.querySelectorAll(".scenario")).forEach(function(sc){sc.classList.toggle("active",sc.getAttribute("data-scn")===id)});
+[].slice.call(svg.querySelectorAll("[data-paths]")).forEach(function(el){
+var on=(" "+el.getAttribute("data-paths")+" ").indexOf(" "+id+" ")>=0;
+el.classList.toggle("on-path",!empty&&on);el.classList.toggle("off-path",!empty&&!on);
+if(el.classList.contains("token"))el.classList.toggle("off",!empty&&!on)});
+clear()}
+scnBtns.forEach(function(b){b.addEventListener("click",function(){setScenario(b.getAttribute("data-scn"),b.getAttribute("data-empty")==="1")})});
+})();</script>
+</body>
+</html>

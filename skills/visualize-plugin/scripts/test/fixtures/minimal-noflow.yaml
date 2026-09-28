@@ -1,0 +1,24 @@
+schema: plugin-structure/v1.1
+ontology: claude-plugin/v1
+dialect: unknown
+lang: en
+title: "minimal fixture (no flow, no trace)"
+generated: { by: hand, at: "2026-09-23T00:00:00Z", environment: claude-code-dirscan, source_root: /dev/null }
+plugin: { name: minimal, version: null, overview: "fixture with <b>markup</b> & \"quotes\" in text" }
+note: null
+components:
+  skills:
+    visibility: verified
+    provenance: dirscan
+    items:
+      - { id: hello, role: generator, description: "says <hello> & \"bye\"", pipeline_order: null, provenance: dirscan }
+  agents:          { visibility: verified_empty, provenance: dirscan, items: [] }
+  hooks:           { visibility: verified_empty, provenance: dirscan, items: [] }
+  commands:        { visibility: verified_empty, provenance: dirscan, items: [] }
+  mcp_servers:     { visibility: verified_empty, provenance: dirscan, items: [] }
+  lsp_servers:     { visibility: verified_empty, provenance: dirscan, items: [] }
+  monitors:        { visibility: verified_empty, provenance: dirscan, items: [] }
+  scripts:         { visibility: verified_empty, provenance: dirscan, items: [] }
+  data_references: { visibility: not_visible, provenance: dirscan, items: [] }
+flow: null
+example_trace: null

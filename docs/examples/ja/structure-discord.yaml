@@ -112,10 +112,10 @@ flow:
     - { cols: [2, 2], label: "対話" }
     - { cols: [3, 3], label: "応答" }
 example_trace:
-  - { actor: user, kind: user, text: "ボットトークンを貼り付け -> configure が .env に保存" }
+  - { actor: user, kind: user, text: "ボットトークンを貼り付け -> configure が .env に保存", node: configure }
   - { actor: configure, kind: skill, text: "既定ポリシー pairing と到達範囲（Public Bot 設定）を案内" }
-  - { actor: discord, kind: mcp, text: "未知の送信者の DM に 6 桁コードを返信し、本文は破棄" }
-  - { actor: user, kind: user, text: "/discord:access pair <code> で送信者を承認" }
+  - { actor: discord, kind: mcp, text: "未知の送信者の DM に 6 桁コードを返信し、本文は破棄", node: dm-in }
+  - { actor: user, kind: user, text: "/discord:access pair <code> で送信者を承認", node: access }
   - { actor: access, kind: skill, text: "access.json の allowFrom に追加。サーバーは受信毎に再読込" }
-  - { actor: discord, kind: mcp, text: "以後の DM を Claude Code セッションへ転送" }
-  - { actor: discord, kind: mcp, text: "応答は reply ツールで返信。権限確認は Allow/Deny ボタン付き DM" }
+  - { actor: discord, kind: mcp, text: "以後の DM を Claude Code セッションへ転送", node: server-ts }
+  - { actor: discord, kind: mcp, text: "応答は reply ツールで返信。権限確認は Allow/Deny ボタン付き DM", node: dm-reply }
